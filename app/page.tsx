@@ -31,7 +31,9 @@ export default function Home() {
       <h1 className="text-3xl font-bold text-yellow-500 mb-4">
         PM Infinity Gold
       </h1>
-
+<div className="text-sm text-gray-400 mb-6">
+  22K Gold Rate (Chennai): ₹ {goldRate} / gram
+</div>
       <p className="text-gray-400 mb-6">
         Track your gold savings journey 💛
       </p>
