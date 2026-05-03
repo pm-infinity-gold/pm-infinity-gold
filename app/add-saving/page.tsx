@@ -1,14 +1,16 @@
  "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function AddSaving() {
   const [amount, setAmount] = useState("");
   const [total, setTotal] = useState(0);
+  const [source, setSource] = useState("Bank");
 
-  const goldRate = 14050; // 22K Chennai gold rate
+  const goldRate = 14050;
+  const router = useRouter();
 
-  // Load existing total when page opens
   useEffect(() => {
     const stored = Number(localStorage.getItem("total") || 0);
     setTotal(stored);
@@ -21,28 +23,32 @@ export default function AddSaving() {
     }
 
     const newTotal = total + Number(amount);
-
-    // Save to localStorage
     localStorage.setItem("total", newTotal.toString());
-
-    // Update state
     setTotal(newTotal);
 
-    alert("Total Saved ₹ " + newTotal);
+    alert("Saved ₹ " + amount);
 
     setAmount("");
   };
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
-      
-      <h1 className="text-2xl text-yellow-500 mb-6">
-        Record Saving
+
+      {/* BACK */}
+      <button
+        onClick={() => router.push("/")}
+        className="mb-4 text-yellow-500"
+      >
+        ← Back
+      </button>
+
+      <h1 className="text-2xl text-yellow-500 mb-4">
+        Record Your Saving
       </h1>
 
-      <div className="mb-4 text-sm text-gray-400">
-        Gold Rate (22K Chennai): ₹ {goldRate} / gram
-      </div>
+      <p className="text-gray-400 mb-6 text-sm">
+        I have saved this amount today:
+      </p>
 
       <input
         type="number"
@@ -52,13 +58,33 @@ export default function AddSaving() {
         className="w-full p-3 rounded-xl text-black bg-white"
       />
 
+      {/* SOURCE */}
+      <select
+        value={source}
+        onChange={(e) => setSource(e.target.value)}
+        className="w-full mt-4 p-3 rounded-xl text-black"
+      >
+        <option>Bank</option>
+        <option>Cash</option>
+        <option>UPI</option>
+        <option>Jewellery Shop</option>
+        <option>Other</option>
+      </select>
+
       <button
         onClick={handleSave}
         className="w-full bg-yellow-500 text-black py-3 rounded-xl mt-4 font-semibold"
       >
-        Save
+        Record Saving
       </button>
 
+      {/* TRUST NOTE */}
+      <p className="mt-6 text-xs text-gray-500 text-center">
+        This app only tracks your savings.  
+        It does not collect or hold your money.
+      </p>
+
+      {/* SUMMARY */}
       <div className="mt-6 text-lg">
         Total Saved: ₹ {total}
       </div>

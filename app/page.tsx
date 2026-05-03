@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const [total, setTotal] = useState(0);
 
-  const goldRate = 14050; // gold rate
-  const targetGold = 10; // goal
+  const goldRate = 14050;
+  const targetGold = 10;
 
   useEffect(() => {
     const loadData = () => {
@@ -15,8 +15,6 @@ export default function Home() {
     };
 
     loadData();
-
-    // update when user comes back to page
     window.addEventListener("focus", loadData);
 
     return () => {
@@ -35,7 +33,7 @@ export default function Home() {
       </h1>
 
       <p className="text-gray-400 mb-6">
-        Save small amounts → build real gold over time
+        Track your gold savings journey 💛
       </p>
 
       {/* TOTAL */}
@@ -58,7 +56,7 @@ export default function Home() {
 
         <div className="w-full bg-gray-700 h-4 rounded-full overflow-hidden">
           <div
-            className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-4 rounded-full transition-all duration-500"
+            className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-4 rounded-full"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -78,8 +76,28 @@ export default function Home() {
         href="/add-saving"
         className="block w-full text-center bg-yellow-500 text-black py-3 rounded-xl font-semibold"
       >
-        Add Saving
+        Record Saving
       </a>
+
+      {/* HOW IT WORKS */}
+      <div className="mt-10 text-sm text-gray-400 space-y-2">
+        <p className="text-yellow-500 font-semibold">How it works:</p>
+        <p>1. Save money on your own (bank / cash / UPI)</p>
+        <p>2. Record your savings in this app</p>
+        <p>3. Track your gold value over time</p>
+        <p>4. Buy gold anytime from your preferred jeweller</p>
+      </div>
+
+      {/* TRUST */}
+      <div className="mt-6 text-xs text-gray-500 text-center">
+        This app helps you track your savings.  
+        We do not collect or hold your money.
+      </div>
+
+      {/* FUTURE */}
+      <div className="mt-4 text-center text-yellow-500 text-sm">
+        🚀 Coming Soon: Direct gold purchase features
+      </div>
 
     </div>
   );
