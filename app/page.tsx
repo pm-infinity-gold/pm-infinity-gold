@@ -98,9 +98,18 @@ export default function Home() {
 
       {/* FUTURE */}
       <div className="mt-4 text-center text-yellow-500 text-sm">
-        🚀 Coming Soon: Direct gold purchase features
-      </div>
+      <div className="mt-6 bg-gradient-to-r from-yellow-500/10 to-yellow-700/10 border border-yellow-500/30 p-5 rounded-2xl">
 
-    </div>
-  );
-}
+  <p className="text-yellow-400 font-semibold text-sm mb-1">
+    🚀 Coming Soon
+  </p>
+
+  <p className="text-white font-medium">
+    Trusted gold saving & redemption
+  </p>
+
+  <p className="text-gray-400 text-sm mt-1">
+    Own 22K gold coins or jewellery through verified partners.
+  </p>
+
+</div>
