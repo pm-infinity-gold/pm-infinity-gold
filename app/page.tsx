@@ -38,27 +38,32 @@ export default function Home() {
         PM Infinity Gold
       </h1>
 
-      {/* GOLD RATE DISPLAY */}
-      <div className="text-sm text-gray-400 mb-2">
-        22K Gold Rate (Chennai): ₹ {goldRate} / gram
-      </div>
-
-      {/* GOLD RATE INPUT */}
-      <input
-        type="number"
-        value={goldRate}
-        onChange={(e) => {
-          const value = Number(e.target.value);
-          setGoldRate(value);
-          localStorage.setItem("goldRate", value.toString());
-        }}
-        className="w-full p-2 rounded-lg text-black mb-6"
-        placeholder="Enter gold rate"
-      />
-
       <p className="text-gray-400 mb-6">
         Track your gold savings journey 💛
       </p>
+
+      {/* GOLD RATE INPUT SECTION */}
+      <div className="bg-gray-900 p-4 rounded-2xl mb-6">
+        <p className="text-yellow-500 font-semibold mb-2">
+          Today’s Gold Rate (22K / 916)
+        </p>
+
+        <input
+          type="number"
+          value={goldRate}
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            setGoldRate(value);
+            localStorage.setItem("goldRate", value.toString());
+          }}
+          className="w-full p-3 rounded-xl text-black"
+          placeholder="Enter today's gold rate"
+        />
+
+        <p className="text-xs text-gray-400 mt-2">
+          You can update this anytime based on current market rate
+        </p>
+      </div>
 
       {/* TOTAL */}
       <div className="bg-gray-900 p-6 rounded-2xl mb-6">
