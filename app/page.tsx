@@ -4,14 +4,20 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [total, setTotal] = useState(0);
+  const [history, setHistory] = useState<any[]>([]);
+  const [goldRate, setGoldRate] = useState(14050);
 
-  const goldRate = 14050;
   const targetGold = 10;
 
   useEffect(() => {
     const loadData = () => {
-      const stored = Number(localStorage.getItem("total") || 0);
-      setTotal(stored);
+      const storedTotal = Number(localStorage.getItem("total") || 0);
+      const storedHistory = JSON.parse(localStorage.getItem("history") || "[]");
+      const storedRate = Number(localStorage.getItem("goldRate") || 14050);
+
+      setTotal(storedTotal);
+      setHistory(storedHistory);
+      setGoldRate(storedRate);
     };
 
     loadData();
@@ -31,9 +37,25 @@ export default function Home() {
       <h1 className="text-3xl font-bold text-yellow-500 mb-4">
         PM Infinity Gold
       </h1>
-<div className="text-sm text-gray-400 mb-6">
-  22K Gold Rate (Chennai): ₹ {goldRate} / gram
-</div>
+
+      {/* GOLD RATE DISPLAY */}
+      <div className="text-sm text-gray-400 mb-2">
+        22K Gold Rate (Chennai): ₹ {goldRate} / gram
+      </div>
+
+      {/* GOLD RATE INPUT */}
+      <input
+        type="number"
+        value={goldRate}
+        onChange={(e) => {
+          const value = Number(e.target.value);
+          setGoldRate(value);
+          localStorage.setItem("goldRate", value.toString());
+        }}
+        className="w-full p-2 rounded-lg text-black mb-6"
+        placeholder="Enter gold rate"
+      />
+
       <p className="text-gray-400 mb-6">
         Track your gold savings journey 💛
       </p>
@@ -81,6 +103,47 @@ export default function Home() {
         Record Saving
       </a>
 
+      {/* PREMIUM BANNER */}
+      <div className="mt-6 bg-gradient-to-r from-yellow-500/10 to-yellow-700/10 border border-yellow-500/30 p-5 rounded-2xl">
+        <p className="text-yellow-400 font-semibold text-sm mb-1">
+          🚀 Coming Soon
+        </p>
+        <p className="text-white font-medium">
+          Trusted gold saving & redemption
+        </p>
+        <p className="text-gray-400 text-sm mt-1">
+          Own 22K gold coins or jewellery through verified partners.
+        </p>
+      </div>
+
+      {/* HISTORY */}
+      <div className="mt-10">
+        <h2 className="text-yellow-500 mb-3 font-semibold">
+          Saving History
+        </h2>
+
+        {history.length === 0 && (
+          <p className="text-gray-500 text-sm">
+            No savings recorded yet.
+          </p>
+        )}
+
+        {history.map((item, index) => (
+          <div
+            key={index}
+            className="bg-gray-900 p-4 rounded-xl mb-3 flex justify-between"
+          >
+            <div>
+              <p className="text-white">₹ {item.amount}</p>
+              <p className="text-xs text-gray-400">{item.source}</p>
+            </div>
+            <div className="text-right text-sm text-gray-400">
+              {item.date}
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* HOW IT WORKS */}
       <div className="mt-10 text-sm text-gray-400 space-y-2">
         <p className="text-yellow-500 font-semibold">How it works:</p>
@@ -92,24 +155,10 @@ export default function Home() {
 
       {/* TRUST */}
       <div className="mt-6 text-xs text-gray-500 text-center">
-        This app helps you track your savings.  
+        This app helps you track your savings.
         We do not collect or hold your money.
       </div>
 
-      {/* FUTURE */}
-      <div className="mt-4 text-center text-yellow-500 text-sm">
-      <div className="mt-6 bg-gradient-to-r from-yellow-500/10 to-yellow-700/10 border border-yellow-500/30 p-5 rounded-2xl">
-
-  <p className="text-yellow-400 font-semibold text-sm mb-1">
-    🚀 Coming Soon
-  </p>
-
-  <p className="text-white font-medium">
-    Trusted gold saving & redemption
-  </p>
-
-  <p className="text-gray-400 text-sm mt-1">
-    Own 22K gold coins or jewellery through verified partners.
-  </p>
-
-</div>
+    </div>
+  );
+}
