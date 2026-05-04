@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 export default function Home() {
+  const appPaused = false;
   const [total, setTotal] = useState(0);
   const [history, setHistory] = useState<any[]>([]);
   const [goldRate, setGoldRate] = useState(14050);
@@ -16,6 +17,16 @@ export default function Home() {
 
       if (!currentUser) {
         window.location.href = "/login";
+       if (appPaused) {
+  return (
+    <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <h1 className="text-xl text-yellow-500">
+        App is temporarily under maintenance
+      </h1>
+    </div>
+  );
+} 
+             
         return;
       }
 
@@ -48,10 +59,21 @@ export default function Home() {
         PM Infinity Gold
       </h1>
 
-      <p className="text-gray-400 mb-4">
-        Welcome, {user}
-      </p>
+<div className="flex justify-between items-center mb-4">
+  <p className="text-gray-400">
+    Welcome, {user}
+  </p>
 
+  <button
+    onClick={() => {
+      localStorage.removeItem("currentUser");
+      window.location.href = "/login";
+    }}
+    className="text-sm text-red-400"
+  >
+    Logout
+  </button>
+</div>
       <p className="text-gray-400 mb-6">
         Track your gold savings journey 💛
       </p>
@@ -63,16 +85,18 @@ export default function Home() {
         </p>
 
         <input
-          type="number"
-          value={goldRate}
-          onChange={(e) => {
-            const value = Number(e.target.value);
-            setGoldRate(value);
-            localStorage.setItem("goldRate", value.toString());
-          }}
-          className="w-full p-3 rounded-xl bg-white text-black font-semibold text-lg"
-          placeholder="Enter today's gold rate"
-        />
+          
+  type="number"
+  value={goldRate}
+  onChange={(e) => {
+    const value = Number(e.target.value);
+    setGoldRate(value);
+    localStorage.setItem("goldRate", value.toString());
+  }}
+  className="w-full p-3 rounded-xl bg-gray-800 text-yellow-400 font-semibold text-lg border border-gray-700"
+  placeholder="Enter today's gold rate"
+/>
+        
 
         <p className="text-xs text-gray-400 mt-2">
           You can update this anytime based on current market rate
