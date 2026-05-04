@@ -6,13 +6,23 @@ export default function Home() {
   const [total, setTotal] = useState(0);
   const [history, setHistory] = useState<any[]>([]);
   const [goldRate, setGoldRate] = useState(14050);
+  const [user, setUser] = useState("");
 
   const targetGold = 10;
 
   useEffect(() => {
     const loadData = () => {
-      const storedTotal = Number(localStorage.getItem("total") || 0);
-      const storedHistory = JSON.parse(localStorage.getItem("history") || "[]");
+      const currentUser = localStorage.getItem("currentUser");
+
+      if (!currentUser) {
+        window.location.href = "/login";
+        return;
+      }
+
+      setUser(currentUser);
+
+      const storedTotal = Number(localStorage.getItem(`${currentUser}_total`) || 0);
+      const storedHistory = JSON.parse(localStorage.getItem(`${currentUser}_history`) || "[]");
       const storedRate = Number(localStorage.getItem("goldRate") || 14050);
 
       setTotal(storedTotal);
@@ -34,15 +44,19 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white px-6 py-10">
 
-      <h1 className="text-3xl font-bold text-yellow-500 mb-4">
+      <h1 className="text-3xl font-bold text-yellow-500 mb-2">
         PM Infinity Gold
       </h1>
+
+      <p className="text-gray-400 mb-4">
+        Welcome, {user}
+      </p>
 
       <p className="text-gray-400 mb-6">
         Track your gold savings journey 💛
       </p>
 
-      {/* GOLD RATE INPUT SECTION */}
+      {/* GOLD RATE INPUT */}
       <div className="bg-gray-900 p-4 rounded-2xl mb-6">
         <p className="text-yellow-500 font-semibold mb-2">
           Today’s Gold Rate (22K / 916)
@@ -56,7 +70,7 @@ export default function Home() {
             setGoldRate(value);
             localStorage.setItem("goldRate", value.toString());
           }}
-          className="w-full p-3 rounded-xl text-black"
+          className="w-full p-3 rounded-xl bg-white text-black font-semibold text-lg"
           placeholder="Enter today's gold rate"
         />
 
