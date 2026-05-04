@@ -29,12 +29,14 @@ export default function Login() {
       </p>
 
       <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="w-full p-3 rounded-xl text-black"
-        placeholder="Your name or mobile"
-      />
+         
+  type="text"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+  className="w-full p-3 rounded-xl bg-gray-900 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
+  placeholder="Enter your name or mobile"
+/>
+      
 
       <button
         onClick={handleLogin}
