@@ -8,12 +8,18 @@ export default function AddSaving() {
   const [total, setTotal] = useState(0);
   const [source, setSource] = useState("Bank");
 
-  const goldRate = 14050;
   const router = useRouter();
 
   useEffect(() => {
-    const stored = Number(localStorage.getItem("total") || 0);
-    setTotal(stored);
+    const user = localStorage.getItem("currentUser");
+
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    const storedTotal = Number(localStorage.getItem(`${user}_total`) || 0);
+    setTotal(storedTotal);
   }, []);
 
   const handleSave = () => {
@@ -22,21 +28,47 @@ export default function AddSaving() {
       return;
     }
 
-    const newTotal = total + Number(amount);
-    localStorage.setItem("total", newTotal.toString());
-    setTotal(newTotal);
+    const user = localStorage.getItem("currentUser");
+
+    if (!user) {
+      alert("User not found");
+      return;
+    }
+
+    const existingTotal = Number(localStorage.getItem(`${user}_total`) || 0);
+    const existingHistory = JSON.parse(localStorage.getItem(`${user}_history`) || "[]");
+
+    const newTotal = existingTotal + Number(amount);
+
+    const newEntry = {
+      amount: Number(amount),
+      date: new Date().toLocaleDateString(),
+      source: source,
+    };
+
+    const updatedHistory = [newEntry, ...existingHistory];
+
+    localStorage.setItem(`${user}_total`, newTotal.toString());
+    localStorage.setItem(`${user}_history`, JSON.stringify(updatedHistory));
 
     alert("Saved ₹ " + amount);
 
     setAmount("");
+
+    // 🔥 IMPORTANT FIX: go back and refresh dashboard
+    router.push("/");
+    window.location.reload();
   };
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
 
-      {/* BACK */}
+      {/* BACK BUTTON */}
       <button
-        onClick={() => router.push("/")}
+        onClick={() => {
+          router.push("/");
+          window.location.reload();
+        }}
         className="mb-4 text-yellow-500"
       >
         ← Back
@@ -78,19 +110,9 @@ export default function AddSaving() {
         Record Saving
       </button>
 
-      {/* TRUST NOTE */}
-      <p className="mt-6 text-xs text-gray-500 text-center">
-        This app only tracks your savings.  
-        It does not collect or hold your money.
-      </p>
-
       {/* SUMMARY */}
       <div className="mt-6 text-lg">
         Total Saved: ₹ {total}
-      </div>
-
-      <div className="mt-2 text-lg text-yellow-500">
-        Gold Equivalent: {(total / goldRate).toFixed(3)} grams
       </div>
 
     </div>
