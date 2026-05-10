@@ -183,6 +183,19 @@ const progress = (currentGold / targetGold) * 100;
           >
             <div>
               <p className="text-white">₹ {item.amount}</p>
+              <p
+  className={`text-xs uppercase ${
+    item.status === "success"
+      ? "text-green-400"
+      : item.status === "failed"
+      ? "text-red-400"
+      : "text-yellow-400"
+  }`}
+>
+  {item.status}
+</p>
+              
+              
               <p className="text-xs text-gray-400">{item.source}</p>
             </div>
             <div className="text-right text-sm text-gray-400">

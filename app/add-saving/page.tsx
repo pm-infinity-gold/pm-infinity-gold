@@ -1,5 +1,6 @@
  "use client";
-
+ import { DEFAULT_GOLD_RATE } from "@/services/goldService";
+ import { createTransaction } from "@/services/transactionService";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -40,13 +41,21 @@ export default function AddSaving() {
 
     const newTotal = existingTotal + Number(amount);
 
-    const newEntry = {
-      amount: Number(amount),
-      date: new Date().toLocaleDateString(),
-      source: source,
-    };
+    const currentUser =
+  localStorage.getItem("currentUser") || "guest";
 
-    const updatedHistory = [newEntry, ...existingHistory];
+const goldRate = Number(
+  localStorage.getItem("goldRate") || DEFAULT_GOLD_RATE
+);
+
+const transaction = createTransaction(
+  currentUser,
+  Number(amount),
+  goldRate
+);
+
+
+    const updatedHistory = [transaction, ...history];
 
     localStorage.setItem(`${user}_total`, newTotal.toString());
     localStorage.setItem(`${user}_history`, JSON.stringify(updatedHistory));
