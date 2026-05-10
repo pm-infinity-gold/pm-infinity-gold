@@ -1,16 +1,24 @@
  "use client";
-
+import { Transaction } from "@/types/transaction";
 import { useEffect, useState } from "react";
 
+import {
+  calculateGoldEquivalent,
+  DEFAULT_GOLD_RATE,
+} from "@/services/goldService";
+
 export default function Home() {
+
   const appPaused = false;
   const [total, setTotal] = useState(0);
-  const [history, setHistory] = useState<any[]>([]);
-  const [goldRate, setGoldRate] = useState(14050);
+  const [history, setHistory] = useState<Transaction[]>([]);
+  const [goldRate, setGoldRate] = useState(DEFAULT_GOLD_RATE);
   const [user, setUser] = useState("");
 
   const targetGold = 10;
+const currentGold = calculateGoldEquivalent(total, goldRate);
 
+const progress = (currentGold / targetGold) * 100;
   useEffect(() => {
     const loadData = () => {
       const currentUser = localStorage.getItem("currentUser");
@@ -48,9 +56,6 @@ export default function Home() {
       window.removeEventListener("focus", loadData);
     };
   }, []);
-
-  const currentGold = total / goldRate;
-  const progress = (currentGold / targetGold) * 100;
 
   return (
     <div className="min-h-screen bg-black text-white px-6 py-10">
@@ -203,5 +208,5 @@ export default function Home() {
       </div>
 
     </div>
-  );
+  ) 
 }
