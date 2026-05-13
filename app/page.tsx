@@ -95,8 +95,10 @@ export default function Home() {
         );
 
       if (!currentUser) {
+
         window.location.href =
           "/login";
+
         return;
       }
 
@@ -136,23 +138,30 @@ export default function Home() {
     );
 
     return () => {
+
       window.removeEventListener(
         "focus",
         loadData
       );
+
     };
 
   }, []);
 
   if (appPaused) {
+
     return (
+
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
 
         <h1 className="text-xl text-yellow-500">
+
           App is temporarily under maintenance
+
         </h1>
 
       </div>
+
     );
   }
 
@@ -160,14 +169,20 @@ export default function Home() {
 
     <div className="min-h-screen bg-black text-white px-6 py-10">
 
+      {/* HEADER */}
+
       <h1 className="text-3xl font-bold text-yellow-500 mb-2">
+
         PM Infinity Gold
+
       </h1>
 
       <div className="flex justify-between items-center mb-4">
 
         <p className="text-gray-400">
+
           Welcome, {user}
+
         </p>
 
         <button
@@ -179,6 +194,7 @@ export default function Home() {
 
             window.location.href =
               "/login";
+
           }}
           className="text-sm text-red-400"
         >
@@ -188,7 +204,9 @@ export default function Home() {
       </div>
 
       <p className="text-gray-400 mb-6">
+
         Track your gold savings journey 💛
+
       </p>
 
       {/* GOLD RATE */}
@@ -196,7 +214,9 @@ export default function Home() {
       <div className="bg-gray-900 p-4 rounded-2xl mb-6">
 
         <p className="text-yellow-500 font-semibold mb-2">
+
           Today’s Gold Rate (22K / 916)
+
         </p>
 
         <input
@@ -221,7 +241,9 @@ export default function Home() {
         />
 
         <p className="text-xs text-gray-400 mt-2">
+
           You can update this anytime based on current market rate
+
         </p>
 
       </div>
@@ -233,7 +255,9 @@ export default function Home() {
         <p>Total Saved</p>
 
         <h2 className="text-2xl">
+
           ₹ {total}
+
         </h2>
 
       </div>
@@ -245,7 +269,9 @@ export default function Home() {
         <p>Gold Equivalent</p>
 
         <h2 className="text-2xl text-yellow-500">
+
           {currentGold.toFixed(3)} grams
+
         </h2>
 
       </div>
@@ -255,7 +281,9 @@ export default function Home() {
       <div className="bg-gray-900 p-6 rounded-2xl mb-6">
 
         <p className="mb-2">
+
           Goal Progress
+
         </p>
 
         <div className="w-full bg-gray-700 h-4 rounded-full overflow-hidden">
@@ -272,17 +300,23 @@ export default function Home() {
         <div className="flex justify-between mt-2 text-sm text-gray-400">
 
           <span>
+
             {currentGold.toFixed(3)} g
+
           </span>
 
           <span>
+
             {targetGold} g
+
           </span>
 
         </div>
 
         <p className="mt-2 text-center text-yellow-500 font-semibold">
+
           {progress.toFixed(1)}% completed
+
         </p>
 
         <div className="mt-4 text-center">
@@ -292,7 +326,9 @@ export default function Home() {
             <div>
 
               <p className="text-green-400 font-semibold mb-3">
+
                 🎉 Eligible for 10g Gold Coin Redemption
+
               </p>
 
               <button
@@ -301,7 +337,9 @@ export default function Home() {
                 }
                 className="bg-yellow-500 text-black px-4 py-2 rounded-xl font-semibold"
               >
+
                 Request Redemption
+
               </button>
 
             </div>
@@ -309,7 +347,9 @@ export default function Home() {
           ) : (
 
             <p className="text-yellow-500 text-sm">
+
               {remainingGold.toFixed(3)} g remaining for redemption
+
             </p>
 
           )}
@@ -318,46 +358,65 @@ export default function Home() {
 
       </div>
 
-      {/* RECORD BUTTON */}
+      {/* ACTION BUTTONS */}
 
-       {/* ACTION BUTTONS */}
+      <div className="grid grid-cols-1 gap-4">
 
-<div className="grid grid-cols-1 gap-4">
+        {/* RECORD SAVING */}
 
-  {/* RECORD SAVING */}
+        <a
+          href="/add-saving"
+          className="block w-full text-center bg-yellow-500 text-black py-3 rounded-xl font-semibold"
+        >
 
-  <a
-    href="/add-saving"
-    className="block w-full text-center bg-yellow-500 text-black py-3 rounded-xl font-semibold"
-  >
-    Record Saving
-  </a>
+          Record Saving
 
-  {/* REDEMPTION HISTORY */}
+        </a>
 
-  <a
-    href="/redemptions"
-    className="block w-full text-center border border-yellow-500 text-yellow-500 py-3 rounded-xl font-semibold"
-  >
-    View Redemption Requests
-  </a>
+        {/* REDEMPTIONS */}
 
-</div>
+        <a
+          href="/redemptions"
+          className="block w-full text-center border border-yellow-500 text-yellow-500 py-3 rounded-xl font-semibold"
+        >
+
+          View Redemption Requests
+
+        </a>
+
+        {/* ABOUT */}
+
+        <a
+          href="/about"
+          className="block w-full text-center border border-gray-700 text-gray-300 py-3 rounded-xl font-semibold"
+        >
+
+          About PM Infinity Gold
+
+        </a>
+
+      </div>
 
       {/* COMING SOON */}
 
       <div className="mt-6 bg-gradient-to-r from-yellow-500/10 to-yellow-700/10 border border-yellow-500/30 p-5 rounded-2xl">
 
         <p className="text-yellow-400 font-semibold text-sm mb-1">
+
           🚀 Coming Soon
+
         </p>
 
         <p className="text-white font-medium">
+
           Trusted gold saving & redemption
+
         </p>
 
         <p className="text-gray-400 text-sm mt-1">
+
           Own 22K gold coins or jewellery through verified partners.
+
         </p>
 
       </div>
@@ -367,13 +426,17 @@ export default function Home() {
       <div className="mt-10">
 
         <h2 className="text-yellow-500 mb-3 font-semibold">
+
           Saving History
+
         </h2>
 
         {history.length === 0 && (
 
           <p className="text-gray-500 text-sm">
+
             No savings recorded yet.
+
           </p>
 
         )}
@@ -388,7 +451,9 @@ export default function Home() {
             <div>
 
               <p className="text-white">
+
                 ₹ {item.amount}
+
               </p>
 
               <p
@@ -400,7 +465,9 @@ export default function Home() {
                     : "text-yellow-400"
                 }`}
               >
+
                 {item.status}
+
               </p>
 
             </div>
@@ -426,7 +493,9 @@ export default function Home() {
       <div className="mt-10 text-sm text-gray-400 space-y-2">
 
         <p className="text-yellow-500 font-semibold">
+
           How it works:
+
         </p>
 
         <p>
