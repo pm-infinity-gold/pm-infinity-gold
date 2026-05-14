@@ -77,62 +77,28 @@ export default function RedemptionsPage() {
 
   }, []);
 
-  const getStatusColor = (
-    status: RedemptionRequest["status"]
+  const timelineSteps = [
+    "requested",
+    "approved",
+    "processing",
+    "dispatched",
+    "delivered",
+  ];
+
+  const getStepStatus = (
+    currentStatus: string,
+    step: string
   ) => {
 
-    switch (status) {
+    const currentIndex =
+      timelineSteps.indexOf(
+        currentStatus
+      );
 
-      case "requested":
-        return "text-yellow-400";
+    const stepIndex =
+      timelineSteps.indexOf(step);
 
-      case "approved":
-        return "text-green-400";
-
-      case "processing":
-        return "text-blue-400";
-
-      case "dispatched":
-        return "text-purple-400";
-
-      case "delivered":
-        return "text-green-500";
-
-      case "rejected":
-        return "text-red-400";
-
-      default:
-        return "text-gray-400";
-    }
-  };
-
-  const getStatusMessage = (
-    status: RedemptionRequest["status"]
-  ) => {
-
-    switch (status) {
-
-      case "requested":
-        return "Your request has been received.";
-
-      case "approved":
-        return "Your redemption has been approved.";
-
-      case "processing":
-        return "Your gold coin is being prepared.";
-
-      case "dispatched":
-        return "Your coin has been dispatched.";
-
-      case "delivered":
-        return "Your redemption has been completed.";
-
-      case "rejected":
-        return "Your redemption request was rejected.";
-
-      default:
-        return "";
-    }
+    return stepIndex <= currentIndex;
   };
 
   return (
@@ -190,8 +156,10 @@ export default function RedemptionsPage() {
 
         <div
           key={index}
-          className="bg-gray-900 p-6 rounded-2xl mb-5 border border-yellow-500/10"
+          className="bg-gray-900 p-6 rounded-2xl mb-6 border border-yellow-500/10"
         >
+
+          {/* TOP */}
 
           <div className="flex justify-between items-start">
 
@@ -215,9 +183,7 @@ export default function RedemptionsPage() {
 
             <div>
 
-              <p
-                className={`text-xs uppercase font-semibold ${getStatusColor(item.status)}`}
-              >
+              <p className="text-xs uppercase text-yellow-400 font-semibold">
 
                 {item.status}
 
@@ -227,72 +193,24 @@ export default function RedemptionsPage() {
 
           </div>
 
-          {/* STATUS */}
+          {/* TIMELINE */}
 
-          <div className="mt-5">
+          {item.status !== "rejected" && (
 
-            <p
-              className={`text-sm font-medium ${getStatusColor(item.status)}`}
-            >
+            <div className="mt-8">
 
-              {getStatusMessage(item.status)}
+              <div className="flex justify-between items-center">
 
-            </p>
+                {timelineSteps.map((step, stepIndex) => {
 
-          </div>
+                  const active =
+                    getStepStatus(
+                      item.status,
+                      step
+                    );
 
-          {/* DATE */}
+                  return (
 
-          <div className="mt-4 text-xs text-gray-500">
-
-            Requested On:
-            {" "}
-            {new Date(
-              item.createdAt
-            ).toLocaleDateString()}
-
-          </div>
-
-        </div>
-
-      ))}
-
-      {/* INFO */}
-
-      <div className="mt-10 bg-gradient-to-r from-yellow-500/10 to-yellow-700/10 border border-yellow-500/20 p-5 rounded-2xl">
-
-        <p className="text-yellow-500 font-semibold mb-2">
-
-          Redemption Workflow
-
-        </p>
-
-        <div className="space-y-2 text-sm text-gray-400">
-
-          <p>
-            • Request submission
-          </p>
-
-          <p>
-            • Verification & approval
-          </p>
-
-          <p>
-            • Coin preparation
-          </p>
-
-          <p>
-            • Dispatch & delivery
-          </p>
-
-        </div>
-
-      </div>
-
-      {/* BOTTOM NAV */}
-
-      <BottomNav />
-
-    </div>
-  );
-}
+                    <div
+                      key={stepIndex}
+                      className="flex

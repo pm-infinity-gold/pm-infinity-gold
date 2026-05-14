@@ -32,6 +32,10 @@ import {
   getGoalPrediction,
 } from "@/services/predictionService";
 
+import {
+  calculateSavingStreak,
+} from "@/services/streakService";
+
 import BottomNav from "@/components/BottomNav";
 
 export default function Home() {
@@ -82,9 +86,39 @@ export default function Home() {
   const prediction =
     getGoalPrediction(total);
 
+  const streak =
+    calculateSavingStreak(
+      history
+    );
+
   const handleRedemptionRequest = () => {
 
     if (!user) return;
+
+    const profile =
+      JSON.parse(
+        localStorage.getItem(
+          `${user}_profile`
+        ) || "{}"
+      );
+
+    if (
+      !profile.name ||
+      !profile.phone ||
+      !profile.address ||
+      !profile.city ||
+      !profile.pincode
+    ) {
+
+      alert(
+        "Please complete your delivery profile before requesting redemption."
+      );
+
+      window.location.href =
+        "/profile";
+
+      return;
+    }
 
     const request =
       createRedemptionRequest(
@@ -200,23 +234,27 @@ export default function Home() {
 
   return (
 
-    <div className="min-h-screen bg-black text-white px-6 py-10 pb-28">
+    <div className="min-h-screen bg-black text-white px-5 py-8 pb-28">
 
       {/* HEADER */}
 
-      <h1 className="text-3xl font-bold text-yellow-500 mb-2">
+      <div className="flex justify-between items-start mb-6">
 
-        PM Infinity Gold
+        <div>
 
-      </h1>
+          <h1 className="text-3xl font-bold text-yellow-500">
 
-      <div className="flex justify-between items-center mb-4">
+            PM Infinity Gold
 
-        <p className="text-gray-400">
+          </h1>
 
-          Welcome, {user}
+          <p className="text-gray-400 mt-1">
 
-        </p>
+            Welcome, {user}
+
+          </p>
+
+        </div>
 
         <button
           onClick={() => {
@@ -238,15 +276,125 @@ export default function Home() {
 
       </div>
 
-      <p className="text-gray-400 mb-6">
+      {/* HERO SUMMARY */}
 
-        Track your gold savings journey 💛
+      <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-700/10 border border-yellow-500/20 rounded-3xl p-6 mb-6">
 
-      </p>
+        <p className="text-yellow-400 text-sm mb-2">
+
+          Gold Ownership Progress
+
+        </p>
+
+        <h2 className="text-4xl font-bold text-white mb-2">
+
+          ₹ {total}
+
+        </h2>
+
+        <p className="text-yellow-500 text-lg font-semibold">
+
+          {currentGold.toFixed(3)} grams
+
+        </p>
+
+        <div className="mt-5">
+
+          <div className="w-full bg-gray-800 h-4 rounded-full overflow-hidden">
+
+            <div
+              className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-4 rounded-full"
+              style={{
+                width: `${progress}%`,
+              }}
+            />
+
+          </div>
+
+          <div className="flex justify-between mt-2 text-sm text-gray-400">
+
+            <span>
+
+              {progress.toFixed(1)}% completed
+
+            </span>
+
+            <span>
+
+              Target: 10g
+
+            </span>
+
+          </div>
+
+        </div>
+
+        <div className="mt-5">
+
+          {eligibleForRedemption ? (
+
+            <div>
+
+              <p className="text-green-400 font-semibold mb-3">
+
+                🎉 Eligible for Redemption
+
+              </p>
+
+              <button
+                onClick={
+                  handleRedemptionRequest
+                }
+                className="bg-yellow-500 text-black px-5 py-2 rounded-xl font-semibold"
+              >
+
+                Request Gold Coin
+
+              </button>
+
+            </div>
+
+          ) : (
+
+            <p className="text-yellow-400 text-sm">
+
+              {remainingGold.toFixed(3)} g remaining for redemption
+
+            </p>
+
+          )}
+
+        </div>
+
+      </div>
+
+      {/* STREAK */}
+
+      <div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-orange-500/20">
+
+        <p className="text-orange-400 font-semibold mb-2">
+
+          Saving Discipline
+
+        </p>
+
+        <h2 className="text-3xl font-bold text-white">
+
+          🔥 {streak}-Day Streak
+
+        </h2>
+
+        <p className="text-gray-400 mt-2 text-sm">
+
+          Maintain consistent savings habit to strengthen your gold ownership journey.
+
+        </p>
+
+      </div>
 
       {/* SMART INSIGHT */}
 
-      <div className="bg-gradient-to-r from-yellow-500/10 to-yellow-700/10 border border-yellow-500/20 p-5 rounded-2xl mb-6">
+      <div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-yellow-500/10">
 
         <p className="text-yellow-500 font-semibold mb-2">
 
@@ -311,9 +459,9 @@ export default function Home() {
 
       {/* GOLD RATE */}
 
-      <div className="bg-gray-900 p-4 rounded-2xl mb-6">
+      <div className="bg-gray-900 p-5 rounded-2xl mb-6">
 
-        <p className="text-yellow-500 font-semibold mb-2">
+        <p className="text-yellow-500 font-semibold mb-3">
 
           Today’s Gold Rate (22K / 916)
 
@@ -336,120 +484,21 @@ export default function Home() {
             );
 
           }}
-          className="w-full p-3 rounded-xl bg-gray-800 text-yellow-400 font-semibold text-lg border border-gray-700"
-          placeholder="Enter today's gold rate"
+          className="w-full p-3 rounded-xl bg-gray-800 text-yellow-400 font-semibold border border-gray-700"
         />
 
       </div>
 
-      {/* TOTAL SAVED */}
+      {/* ACTION */}
 
-      <div className="bg-gray-900 p-6 rounded-2xl mb-6">
+      <a
+        href="/add-saving"
+        className="block w-full text-center bg-yellow-500 text-black py-4 rounded-2xl font-semibold mb-8"
+      >
 
-        <p>Total Saved</p>
+        Record Saving
 
-        <h2 className="text-2xl">
-
-          ₹ {total}
-
-        </h2>
-
-      </div>
-
-      {/* GOLD EQUIVALENT */}
-
-      <div className="bg-gray-900 p-6 rounded-2xl mb-6">
-
-        <p>Gold Equivalent</p>
-
-        <h2 className="text-2xl text-yellow-500">
-
-          {currentGold.toFixed(3)} grams
-
-        </h2>
-
-      </div>
-
-      {/* PROGRESS */}
-
-      <div className="bg-gray-900 p-6 rounded-2xl mb-6">
-
-        <p className="mb-2">
-
-          Goal Progress
-
-        </p>
-
-        <div className="w-full bg-gray-700 h-4 rounded-full overflow-hidden">
-
-          <div
-            className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-4 rounded-full"
-            style={{
-              width: `${progress}%`,
-            }}
-          />
-
-        </div>
-
-        <p className="mt-3 text-center text-yellow-500 font-semibold">
-
-          {progress.toFixed(1)}% completed
-
-        </p>
-
-        <div className="mt-4 text-center">
-
-          {eligibleForRedemption ? (
-
-            <div>
-
-              <p className="text-green-400 font-semibold mb-3">
-
-                🎉 Eligible for 10g Gold Coin Redemption
-
-              </p>
-
-              <button
-                onClick={
-                  handleRedemptionRequest
-                }
-                className="bg-yellow-500 text-black px-4 py-2 rounded-xl font-semibold"
-              >
-
-                Request Redemption
-
-              </button>
-
-            </div>
-
-          ) : (
-
-            <p className="text-yellow-500 text-sm">
-
-              {remainingGold.toFixed(3)} g remaining for redemption
-
-            </p>
-
-          )}
-
-        </div>
-
-      </div>
-
-      {/* ACTION BUTTON */}
-
-      <div className="grid grid-cols-1 gap-4 mb-10">
-
-        <a
-          href="/add-saving"
-          className="block w-full text-center bg-yellow-500 text-black py-3 rounded-xl font-semibold"
-        >
-
-          Record Saving
-
-        </a>
-
-      </div>
+      </a>
 
       {/* HISTORY */}
 
@@ -475,7 +524,7 @@ export default function Home() {
 
           <div
             key={index}
-            className="bg-gray-900 p-4 rounded-xl mb-3 border border-yellow-500/10"
+            className="bg-gray-900 p-4 rounded-2xl mb-3 border border-yellow-500/10"
           >
 
             <div className="flex justify-between items-start">

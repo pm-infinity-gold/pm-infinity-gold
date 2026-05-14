@@ -1,11 +1,18 @@
-export function getGoalPrediction(
+ export function getGoalPrediction(
   total: number,
-  targetAmount: number = 100000
+  targetAmount: number = 135000
 ): string {
 
   if (total <= 0) {
 
     return "Start saving today to begin your gold ownership journey.";
+  }
+
+  /* GOAL ACHIEVED */
+
+  if (total >= targetAmount) {
+
+    return "🏆 Congratulations! You have successfully achieved your gold ownership goal.";
   }
 
   const estimatedMonths =
