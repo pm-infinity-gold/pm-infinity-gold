@@ -1,6 +1,8 @@
-"use client";
+ "use client";
 
 import { useEffect, useState } from "react";
+
+import BottomNav from "@/components/BottomNav";
 
 interface RedemptionRequest {
 
@@ -79,8 +81,6 @@ export default function AdminPage() {
 
     setRequests(updatedRequests);
 
-    // update localStorage
-
     const groupedByUser:
       Record<string, RedemptionRequest[]> = {};
 
@@ -115,7 +115,7 @@ export default function AdminPage() {
 
   return (
 
-    <div className="min-h-screen bg-black text-white px-6 py-10">
+    <div className="min-h-screen bg-black text-white px-6 py-10 pb-28">
 
       {/* HEADER */}
 
@@ -133,7 +133,9 @@ export default function AdminPage() {
           }}
           className="text-yellow-500"
         >
+
           ← Back
+
         </button>
 
       </div>
@@ -143,6 +145,8 @@ export default function AdminPage() {
         Manage redemption requests and operational workflow.
 
       </p>
+
+      {/* EMPTY */}
 
       {requests.length === 0 && (
 
@@ -157,6 +161,8 @@ export default function AdminPage() {
         </div>
 
       )}
+
+      {/* REQUESTS */}
 
       {requests.map((item, index) => (
 
@@ -230,7 +236,9 @@ export default function AdminPage() {
               }
               className="bg-green-600 py-2 rounded-xl"
             >
+
               Approve
+
             </button>
 
             <button
@@ -242,7 +250,9 @@ export default function AdminPage() {
               }
               className="bg-blue-600 py-2 rounded-xl"
             >
+
               Processing
+
             </button>
 
             <button
@@ -254,7 +264,9 @@ export default function AdminPage() {
               }
               className="bg-purple-600 py-2 rounded-xl"
             >
+
               Dispatch
+
             </button>
 
             <button
@@ -266,7 +278,9 @@ export default function AdminPage() {
               }
               className="bg-yellow-600 py-2 rounded-xl"
             >
+
               Delivered
+
             </button>
 
             <button
@@ -278,7 +292,9 @@ export default function AdminPage() {
               }
               className="bg-red-600 py-2 rounded-xl"
             >
+
               Reject
+
             </button>
 
           </div>
@@ -318,6 +334,10 @@ export default function AdminPage() {
         </div>
 
       </div>
+
+      {/* BOTTOM NAV */}
+
+      <BottomNav />
 
     </div>
   );

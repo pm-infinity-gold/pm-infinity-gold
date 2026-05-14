@@ -1,6 +1,8 @@
-"use client";
+ "use client";
 
 import { useEffect, useState } from "react";
+
+import BottomNav from "@/components/BottomNav";
 
 interface RedemptionRequest {
 
@@ -36,8 +38,10 @@ export default function RedemptionsPage() {
         );
 
       if (!currentUser) {
+
         window.location.href =
           "/login";
+
         return;
       }
 
@@ -63,10 +67,12 @@ export default function RedemptionsPage() {
     );
 
     return () => {
+
       window.removeEventListener(
         "focus",
         loadRequests
       );
+
     };
 
   }, []);
@@ -131,7 +137,7 @@ export default function RedemptionsPage() {
 
   return (
 
-    <div className="min-h-screen bg-black text-white px-6 py-10">
+    <div className="min-h-screen bg-black text-white px-6 py-10 pb-28">
 
       {/* HEADER */}
 
@@ -149,7 +155,9 @@ export default function RedemptionsPage() {
           }}
           className="text-yellow-500"
         >
+
           ← Back
+
         </button>
 
       </div>
@@ -219,7 +227,7 @@ export default function RedemptionsPage() {
 
           </div>
 
-          {/* STATUS MESSAGE */}
+          {/* STATUS */}
 
           <div className="mt-5">
 
@@ -281,13 +289,9 @@ export default function RedemptionsPage() {
 
       </div>
 
-      {/* TRUST */}
+      {/* BOTTOM NAV */}
 
-      <div className="mt-8 text-center text-xs text-gray-500">
-
-        PM Infinity Gold redemption requests are processed through controlled operational workflows.
-
-      </div>
+      <BottomNav />
 
     </div>
   );

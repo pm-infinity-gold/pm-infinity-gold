@@ -20,6 +20,20 @@ import {
 
 import { appConfig } from "@/admin/appConfig";
 
+import {
+  getSavingsInsight,
+} from "@/services/insightService";
+
+import {
+  getAchievementBadges,
+} from "@/services/badgeService";
+
+import {
+  getGoalPrediction,
+} from "@/services/predictionService";
+
+import BottomNav from "@/components/BottomNav";
+
 export default function Home() {
 
   const appPaused = appConfig.appPaused;
@@ -52,6 +66,21 @@ export default function Home() {
 
   const remainingGold =
     gramsRemaining(currentGold);
+
+  const savingsInsight =
+    getSavingsInsight(
+      progress,
+      remainingGold
+    );
+
+  const badges =
+    getAchievementBadges(
+      total,
+      progress
+    );
+
+  const prediction =
+    getGoalPrediction(total);
 
   const handleRedemptionRequest = () => {
 
@@ -125,7 +154,11 @@ export default function Home() {
 
       setTotal(storedTotal);
 
-      setHistory(storedHistory);
+      setHistory(
+        Array.isArray(storedHistory)
+          ? storedHistory
+          : []
+      );
 
       setGoldRate(storedRate);
     };
@@ -167,7 +200,7 @@ export default function Home() {
 
   return (
 
-    <div className="min-h-screen bg-black text-white px-6 py-10">
+    <div className="min-h-screen bg-black text-white px-6 py-10 pb-28">
 
       {/* HEADER */}
 
@@ -198,7 +231,9 @@ export default function Home() {
           }}
           className="text-sm text-red-400"
         >
+
           Logout
+
         </button>
 
       </div>
@@ -208,6 +243,71 @@ export default function Home() {
         Track your gold savings journey 💛
 
       </p>
+
+      {/* SMART INSIGHT */}
+
+      <div className="bg-gradient-to-r from-yellow-500/10 to-yellow-700/10 border border-yellow-500/20 p-5 rounded-2xl mb-6">
+
+        <p className="text-yellow-500 font-semibold mb-2">
+
+          Smart Savings Insight
+
+        </p>
+
+        <p className="text-gray-300 leading-7">
+
+          {savingsInsight}
+
+        </p>
+
+      </div>
+
+      {/* PREDICTION */}
+
+      <div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-yellow-500/10">
+
+        <p className="text-yellow-500 font-semibold mb-2">
+
+          Goal Prediction
+
+        </p>
+
+        <p className="text-gray-300 leading-7">
+
+          {prediction}
+
+        </p>
+
+      </div>
+
+      {/* BADGES */}
+
+      <div className="bg-gray-900 p-5 rounded-2xl mb-6">
+
+        <p className="text-yellow-500 font-semibold mb-4">
+
+          Achievement Badges
+
+        </p>
+
+        <div className="flex flex-wrap gap-3">
+
+          {badges.map((badge, index) => (
+
+            <div
+              key={index}
+              className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-4 py-2 rounded-xl text-sm"
+            >
+
+              {badge}
+
+            </div>
+
+          ))}
+
+        </div>
+
+      </div>
 
       {/* GOLD RATE */}
 
@@ -239,12 +339,6 @@ export default function Home() {
           className="w-full p-3 rounded-xl bg-gray-800 text-yellow-400 font-semibold text-lg border border-gray-700"
           placeholder="Enter today's gold rate"
         />
-
-        <p className="text-xs text-gray-400 mt-2">
-
-          You can update this anytime based on current market rate
-
-        </p>
 
       </div>
 
@@ -297,23 +391,7 @@ export default function Home() {
 
         </div>
 
-        <div className="flex justify-between mt-2 text-sm text-gray-400">
-
-          <span>
-
-            {currentGold.toFixed(3)} g
-
-          </span>
-
-          <span>
-
-            {targetGold} g
-
-          </span>
-
-        </div>
-
-        <p className="mt-2 text-center text-yellow-500 font-semibold">
+        <p className="mt-3 text-center text-yellow-500 font-semibold">
 
           {progress.toFixed(1)}% completed
 
@@ -358,11 +436,9 @@ export default function Home() {
 
       </div>
 
-      {/* ACTION BUTTONS */}
+      {/* ACTION BUTTON */}
 
-      <div className="grid grid-cols-1 gap-4">
-
-        {/* RECORD SAVING */}
+      <div className="grid grid-cols-1 gap-4 mb-10">
 
         <a
           href="/add-saving"
@@ -373,59 +449,13 @@ export default function Home() {
 
         </a>
 
-        {/* REDEMPTIONS */}
-
-        <a
-          href="/redemptions"
-          className="block w-full text-center border border-yellow-500 text-yellow-500 py-3 rounded-xl font-semibold"
-        >
-
-          View Redemption Requests
-
-        </a>
-
-        {/* ABOUT */}
-
-        <a
-          href="/about"
-          className="block w-full text-center border border-gray-700 text-gray-300 py-3 rounded-xl font-semibold"
-        >
-
-          About PM Infinity Gold
-
-        </a>
-
-      </div>
-
-      {/* COMING SOON */}
-
-      <div className="mt-6 bg-gradient-to-r from-yellow-500/10 to-yellow-700/10 border border-yellow-500/30 p-5 rounded-2xl">
-
-        <p className="text-yellow-400 font-semibold text-sm mb-1">
-
-          🚀 Coming Soon
-
-        </p>
-
-        <p className="text-white font-medium">
-
-          Trusted gold saving & redemption
-
-        </p>
-
-        <p className="text-gray-400 text-sm mt-1">
-
-          Own 22K gold coins or jewellery through verified partners.
-
-        </p>
-
       </div>
 
       {/* HISTORY */}
 
-      <div className="mt-10">
+      <div className="mb-10">
 
-        <h2 className="text-yellow-500 mb-3 font-semibold">
+        <h2 className="text-yellow-500 mb-4 font-semibold text-lg">
 
           Saving History
 
@@ -445,40 +475,68 @@ export default function Home() {
 
           <div
             key={index}
-            className="bg-gray-900 p-4 rounded-xl mb-3 flex justify-between"
+            className="bg-gray-900 p-4 rounded-xl mb-3 border border-yellow-500/10"
           >
 
-            <div>
+            <div className="flex justify-between items-start">
 
-              <p className="text-white">
+              <div>
 
-                ₹ {item.amount}
+                <p className="text-white text-lg font-semibold">
 
-              </p>
+                  ₹ {item.amount}
 
-              <p
-                className={`text-xs uppercase ${
-                  item.status === "success"
-                    ? "text-green-400"
-                    : item.status === "failed"
-                    ? "text-red-400"
-                    : "text-yellow-400"
-                }`}
-              >
+                </p>
 
-                {item.status}
+                <p className="text-xs text-gray-400 mt-1">
 
-              </p>
+                  Source:
+                  {" "}
+                  {item.source || "Bank"}
+
+                </p>
+
+              </div>
+
+              <div className="text-right">
+
+                <p
+                  className={`text-xs uppercase font-semibold ${
+                    item.status === "success"
+                      ? "text-green-400"
+                      : item.status === "failed"
+                      ? "text-red-400"
+                      : "text-yellow-400"
+                  }`}
+                >
+
+                  {item.status}
+
+                </p>
+
+                <p className="text-xs text-gray-500 mt-1">
+
+                  {item.createdAt
+                    ? new Date(
+                        item.createdAt
+                      ).toLocaleDateString()
+                    : ""}
+
+                </p>
+
+              </div>
 
             </div>
 
-            <div className="text-right text-sm text-gray-400">
+            <div className="mt-3 text-sm text-gray-400">
 
-              {item.createdAt
-                ? new Date(
-                    item.createdAt
-                  ).toLocaleDateString()
-                : ""}
+              Gold Added:
+              {" "}
+              <span className="text-yellow-500">
+
+                {item.goldGrams?.toFixed(3)} g
+
+              </span>
 
             </div>
 
@@ -488,45 +546,33 @@ export default function Home() {
 
       </div>
 
-      {/* HOW IT WORKS */}
+      {/* BRAND MESSAGE */}
 
-      <div className="mt-10 text-sm text-gray-400 space-y-2">
+      <div className="mt-12 text-center space-y-3">
 
-        <p className="text-yellow-500 font-semibold">
+        <p className="text-yellow-500 text-lg font-semibold">
 
-          How it works:
+          “Ellorum Ellamum Pera Vendum”
 
         </p>
 
-        <p>
-          1. Save money step by step
+        <p className="text-gray-500 text-sm">
+
+          “எல்லோரும் எல்லாமும் பெற வேண்டும்”
+
         </p>
 
-        <p>
-          2. Record savings in the app
-        </p>
+        <p className="text-gray-600 text-xs max-w-md mx-auto leading-6">
 
-        <p>
-          3. Track your gold equivalent
-        </p>
+          PM Infinity Gold is designed to make disciplined gold ownership simple, accessible, and operationally transparent for everyone.
 
-        <p>
-          4. Reach your 10g goal
-        </p>
-
-        <p>
-          5. Redeem your hallmark gold coin
         </p>
 
       </div>
 
-      {/* TRUST */}
+      {/* BOTTOM NAV */}
 
-      <div className="mt-6 text-xs text-gray-500 text-center">
-
-        PM Infinity Gold helps you track and grow your gold ownership journey.
-
-      </div>
+      <BottomNav />
 
     </div>
   );

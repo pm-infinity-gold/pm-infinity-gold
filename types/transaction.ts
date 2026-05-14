@@ -1,19 +1,21 @@
-export interface Transaction {
+ export interface Transaction {
+
   id: string;
 
   userId: string;
 
   amount: number;
 
+  goldGrams: number;
+
   goldRate: number;
 
-  goldEquivalent: number;
+  source: string;
 
   status:
-    | "pending"
     | "success"
-    | "failed"
-    | "refunded";
+    | "pending"
+    | "failed";
 
   createdAt: string;
 }

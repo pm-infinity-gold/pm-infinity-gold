@@ -12,6 +12,8 @@ import {
   createTransaction,
 } from "@/services/transactionService";
 
+import BottomNav from "@/components/BottomNav";
+
 export default function AddSavingPage() {
 
   const router = useRouter();
@@ -39,7 +41,9 @@ export default function AddSavingPage() {
       );
 
     if (!currentUser) {
+
       router.push("/login");
+
       return;
     }
 
@@ -71,7 +75,9 @@ export default function AddSavingPage() {
   const handleSave = () => {
 
     if (!amount) {
+
       alert("Please enter amount");
+
       return;
     }
 
@@ -91,7 +97,8 @@ export default function AddSavingPage() {
       createTransaction(
         user,
         numericAmount,
-        goldRate
+        goldRate,
+        source
       );
 
     const updatedHistory = [
@@ -116,7 +123,7 @@ export default function AddSavingPage() {
     setHistory(updatedHistory);
 
     alert(
-      `Saved ₹ ${numericAmount}`
+      `Saved ₹ ${numericAmount} via ${source}`
     );
 
     setAmount("");
@@ -126,9 +133,9 @@ export default function AddSavingPage() {
 
   return (
 
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-screen bg-black text-white p-6 pb-28">
 
-      {/* BACK BUTTON */}
+      {/* BACK */}
 
       <button
         onClick={() => {
@@ -136,7 +143,9 @@ export default function AddSavingPage() {
         }}
         className="mb-4 text-yellow-500"
       >
+
         ← Back
+
       </button>
 
       {/* TITLE */}
@@ -149,7 +158,7 @@ export default function AddSavingPage() {
 
       <p className="text-gray-400 mb-6 text-sm">
 
-        I have saved this amount today:
+        Add your savings amount to continue your gold journey.
 
       </p>
 
@@ -201,7 +210,7 @@ export default function AddSavingPage() {
 
       </select>
 
-      {/* SAVE BUTTON */}
+      {/* BUTTON */}
 
       <button
         onClick={handleSave}
@@ -221,6 +230,42 @@ export default function AddSavingPage() {
         ₹ {total}
 
       </div>
+
+      {/* INFO */}
+
+      <div className="mt-8 bg-gradient-to-r from-yellow-500/10 to-yellow-700/10 border border-yellow-500/20 p-5 rounded-2xl">
+
+        <p className="text-yellow-500 font-semibold mb-2">
+
+          Flexible Saving Modes
+
+        </p>
+
+        <div className="space-y-2 text-sm text-gray-400">
+
+          <p>
+            • Save using bank transfer
+          </p>
+
+          <p>
+            • Record UPI or cash savings
+          </p>
+
+          <p>
+            • Track all saving sources
+          </p>
+
+          <p>
+            • Build disciplined gold ownership
+          </p>
+
+        </div>
+
+      </div>
+
+      {/* BOTTOM NAV */}
+
+      <BottomNav />
 
     </div>
   );

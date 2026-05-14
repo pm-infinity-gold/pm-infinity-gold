@@ -1,10 +1,12 @@
-"use client";
+ "use client";
+
+import BottomNav from "@/components/BottomNav";
 
 export default function AboutPage() {
 
   return (
 
-    <div className="min-h-screen bg-black text-white px-6 py-10">
+    <div className="min-h-screen bg-black text-white px-6 py-10 pb-28">
 
       {/* HEADER */}
 
@@ -22,7 +24,9 @@ export default function AboutPage() {
           }}
           className="text-yellow-500"
         >
+
           ← Back
+
         </button>
 
       </div>
@@ -158,6 +162,10 @@ export default function AboutPage() {
         </p>
 
       </div>
+
+      {/* BOTTOM NAV */}
+
+      <BottomNav />
 
     </div>
   );
