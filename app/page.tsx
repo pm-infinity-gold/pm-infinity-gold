@@ -36,21 +36,79 @@ import {
   calculateSavingStreak,
 } from "@/services/streakService";
 
+import {
+  getMarketInsight,
+} from "@/services/marketInsightService";
+
+import {
+  getMilestones,
+} from "@/services/milestoneService";
+
+import {
+  generateSavingsReport,
+} from "@/services/exportService";
+
+import {
+  getFinancialSummary,
+} from "@/services/summaryService";
+
+import {
+  getNotifications,
+} from "@/services/notificationService";
+
+import {
+  getLastLogin,
+} from "@/services/sessionService";
+
+import {
+  getAccountTrustStatus,
+} from "@/services/accountTrustService";
+
+import {
+  getProfileCompletion,
+} from "@/services/profileCompletionService";
+
+import {
+  generateActivities,
+} from "@/services/activityService";
+import {
+  getUserLevel,
+} from "@/services/userLevelService";
 import BottomNav from "@/components/BottomNav";
+
+import SavingsChart from "@/components/SavingsChart";
 
 export default function Home() {
 
-  const appPaused = appConfig.appPaused;
+  const appPaused =
+    appConfig.appPaused;
 
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] =
+    useState(0);
 
   const [history, setHistory] =
     useState<Transaction[]>([]);
 
-  const [goldRate, setGoldRate] =
-    useState(DEFAULT_GOLD_RATE);
+  const [redemptions,
+    setRedemptions] =
+    useState<any[]>([]);
 
-  const [user, setUser] = useState("");
+  const [goldRate,
+    setGoldRate] =
+    useState(
+      DEFAULT_GOLD_RATE
+    );
+
+  const [user, setUser] =
+    useState("");
+
+  const [lastLogin,
+    setLastLogin] =
+    useState("");
+
+  const [profileCompleted,
+    setProfileCompleted] =
+    useState(false);
 
   const targetGold = 10;
 
@@ -61,7 +119,9 @@ export default function Home() {
     );
 
   const progress =
-    (currentGold / targetGold) * 100;
+    (currentGold /
+      targetGold) *
+    100;
 
   const eligibleForRedemption =
     isEligibleForRedemption(
@@ -69,7 +129,9 @@ export default function Home() {
     );
 
   const remainingGold =
-    gramsRemaining(currentGold);
+    gramsRemaining(
+      currentGold
+    );
 
   const savingsInsight =
     getSavingsInsight(
@@ -84,69 +146,159 @@ export default function Home() {
     );
 
   const prediction =
-    getGoalPrediction(total);
+    getGoalPrediction(
+      total
+    );
 
   const streak =
     calculateSavingStreak(
       history
     );
 
-  const handleRedemptionRequest = () => {
+  const marketInsight =
+    getMarketInsight(
+      goldRate
+    );
 
-    if (!user) return;
+  const milestones =
+    getMilestones(
+      total,
+      currentGold
+    );
 
-    const profile =
-      JSON.parse(
-        localStorage.getItem(
-          `${user}_profile`
-        ) || "{}"
+  const summary =
+    getFinancialSummary(
+      history
+    );
+
+  const notifications =
+    getNotifications(
+      total,
+      currentGold,
+      streak
+    );
+
+  const activities =
+    generateActivities(
+      history,
+      redemptions
+    );
+
+  const trustStatus =
+    getAccountTrustStatus({
+      total,
+      profileCompleted,
+      transactions:
+        history.length,
+    });
+const userLevel =
+  getUserLevel({
+    total,
+    transactions:
+      history.length,
+  });
+  const handleDownloadReport =
+    () => {
+
+      const report =
+        generateSavingsReport(
+          history
+        );
+
+      const blob =
+        new Blob(
+          [report],
+          {
+            type:
+              "text/plain",
+          }
+        );
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+      link.href = url;
+
+      link.download =
+        "pm-infinity-savings-report.txt";
+
+      link.click();
+
+      URL.revokeObjectURL(
+        url
+      );
+    };
+
+  const handleRedemptionRequest =
+    () => {
+
+      if (!user) return;
+
+      const profile =
+        JSON.parse(
+          localStorage.getItem(
+            `${user}_profile`
+          ) || "{}"
+        );
+
+      if (
+        !profile.name ||
+        !profile.phone ||
+        !profile.address ||
+        !profile.city ||
+        !profile.pincode
+      ) {
+
+        alert(
+          "Please complete your delivery profile before requesting redemption."
+        );
+
+        window.location.href =
+          "/profile";
+
+        return;
+      }
+
+      const request =
+        createRedemptionRequest(
+          user,
+          currentGold
+        );
+
+      const existingRequests =
+        JSON.parse(
+          localStorage.getItem(
+            `${user}_redemptions`
+          ) || "[]"
+        );
+
+      const updatedRequests = [
+        request,
+        ...existingRequests,
+      ];
+
+      localStorage.setItem(
+        `${user}_redemptions`,
+        JSON.stringify(
+          updatedRequests
+        )
       );
 
-    if (
-      !profile.name ||
-      !profile.phone ||
-      !profile.address ||
-      !profile.city ||
-      !profile.pincode
-    ) {
+      setRedemptions(
+        updatedRequests
+      );
 
       alert(
-        "Please complete your delivery profile before requesting redemption."
+        "Redemption request submitted successfully."
       );
-
-      window.location.href =
-        "/profile";
-
-      return;
-    }
-
-    const request =
-      createRedemptionRequest(
-        user,
-        currentGold
-      );
-
-    const existingRequests =
-      JSON.parse(
-        localStorage.getItem(
-          `${user}_redemptions`
-        ) || "[]"
-      );
-
-    const updatedRequests = [
-      request,
-      ...existingRequests,
-    ];
-
-    localStorage.setItem(
-      `${user}_redemptions`,
-      JSON.stringify(updatedRequests)
-    );
-
-    alert(
-      "Redemption request submitted successfully."
-    );
-  };
+    };
 
   useEffect(() => {
 
@@ -167,11 +319,34 @@ export default function Home() {
 
       setUser(currentUser);
 
-      const storedTotal = Number(
-        localStorage.getItem(
-          `${currentUser}_total`
-        ) || 0
+      setLastLogin(
+        getLastLogin(
+          currentUser
+        )
       );
+
+      const storedProfile =
+        JSON.parse(
+          localStorage.getItem(
+            `${currentUser}_profile`
+          ) || "{}"
+        );
+
+      const completion =
+        getProfileCompletion(
+          storedProfile
+        );
+
+      setProfileCompleted(
+        completion.completed
+      );
+
+      const storedTotal =
+        Number(
+          localStorage.getItem(
+            `${currentUser}_total`
+          ) || 0
+        );
 
       const storedHistory =
         JSON.parse(
@@ -180,21 +355,44 @@ export default function Home() {
           ) || "[]"
         );
 
-      const storedRate = Number(
-        localStorage.getItem(
-          "goldRate"
-        ) || DEFAULT_GOLD_RATE
+      const storedRedemptions =
+        JSON.parse(
+          localStorage.getItem(
+            `${currentUser}_redemptions`
+          ) || "[]"
+        );
+
+      const storedRate =
+        Number(
+          localStorage.getItem(
+            "goldRate"
+          ) ||
+            DEFAULT_GOLD_RATE
+        );
+
+      setTotal(
+        storedTotal
       );
 
-      setTotal(storedTotal);
-
       setHistory(
-        Array.isArray(storedHistory)
+        Array.isArray(
+          storedHistory
+        )
           ? storedHistory
           : []
       );
 
-      setGoldRate(storedRate);
+      setRedemptions(
+        Array.isArray(
+          storedRedemptions
+        )
+          ? storedRedemptions
+          : []
+      );
+
+      setGoldRate(
+        storedRate
+      );
     };
 
     loadData();
@@ -254,6 +452,14 @@ export default function Home() {
 
           </p>
 
+          <p className="text-gray-500 text-xs mt-2">
+
+            Last Login:
+            {" "}
+            {lastLogin}
+
+          </p>
+
         </div>
 
         <button
@@ -275,8 +481,59 @@ export default function Home() {
         </button>
 
       </div>
+{/* USER LEVEL */}
 
-      {/* HERO SUMMARY */}
+<div className="bg-gray-900 p-4 rounded-2xl mb-4 border border-cyan-500/10">
+
+  <p className={`${userLevel.color} font-semibold text-lg`}>
+
+    {userLevel.level}
+
+  </p>
+
+</div>
+      {/* TRUST BADGE */}
+
+      <div className="bg-gray-900 p-4 rounded-2xl mb-6 border border-yellow-500/10">
+
+        <p className={`${trustStatus.color} font-semibold`}>
+
+          {trustStatus.badge}
+
+        </p>
+
+      </div>
+
+      {/* NOTIFICATIONS */}
+
+      {notifications.length > 0 && (
+
+        <div className="mb-6 space-y-3">
+
+          {notifications.map(
+            (item, index) => (
+
+              <div
+                key={index}
+                className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-2xl"
+              >
+
+                <p className="text-yellow-400 text-sm">
+
+                  {item}
+
+                </p>
+
+              </div>
+
+            )
+          )}
+
+        </div>
+
+      )}
+
+      {/* HERO */}
 
       <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-700/10 border border-yellow-500/20 rounded-3xl p-6 mb-6">
 
@@ -368,6 +625,147 @@ export default function Home() {
 
       </div>
 
+      {/* ACTIVITY TIMELINE */}
+
+      <div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-yellow-500/10">
+
+        <p className="text-yellow-500 font-semibold mb-4">
+
+          Activity Timeline
+
+        </p>
+
+        <div className="space-y-4">
+
+          {activities.length === 0 && (
+
+            <p className="text-gray-500 text-sm">
+
+              No activity yet.
+
+            </p>
+
+          )}
+
+          {activities.map(
+            (item, index) => (
+
+              <div
+                key={index}
+                className="border-l-2 border-yellow-500 pl-4"
+              >
+
+                <p className="text-gray-200 text-sm">
+
+                  {item.message}
+
+                </p>
+
+                <p className="text-xs text-gray-500 mt-1">
+
+                  {new Date(
+                    item.createdAt
+                  ).toLocaleString()}
+
+                </p>
+
+              </div>
+
+            )
+          )}
+
+        </div>
+
+      </div>
+
+      {/* FINANCIAL SUMMARY */}
+
+      <div className="grid grid-cols-2 gap-4 mb-6">
+
+        <div className="bg-gray-900 p-4 rounded-2xl border border-yellow-500/10">
+
+          <p className="text-gray-400 text-sm">
+
+            Transactions
+
+          </p>
+
+          <h2 className="text-2xl font-bold text-yellow-500 mt-2">
+
+            {summary.totalTransactions}
+
+          </h2>
+
+        </div>
+
+        <div className="bg-gray-900 p-4 rounded-2xl border border-yellow-500/10">
+
+          <p className="text-gray-400 text-sm">
+
+            Avg Saving
+
+          </p>
+
+          <h2 className="text-2xl font-bold text-yellow-500 mt-2">
+
+            ₹ {summary.averageSaving.toFixed(0)}
+
+          </h2>
+
+        </div>
+
+        <div className="bg-gray-900 p-4 rounded-2xl border border-yellow-500/10">
+
+          <p className="text-gray-400 text-sm">
+
+            Highest Saving
+
+          </p>
+
+          <h2 className="text-2xl font-bold text-yellow-500 mt-2">
+
+            ₹ {summary.highestSaving}
+
+          </h2>
+
+        </div>
+
+        <div className="bg-gray-900 p-4 rounded-2xl border border-yellow-500/10">
+
+          <p className="text-gray-400 text-sm">
+
+            Total Gold
+
+          </p>
+
+          <h2 className="text-2xl font-bold text-yellow-500 mt-2">
+
+            {summary.totalGold.toFixed(3)} g
+
+          </h2>
+
+        </div>
+
+      </div>
+
+      {/* MARKET INSIGHT */}
+
+      <div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-yellow-500/10">
+
+        <p className="text-yellow-500 font-semibold mb-2">
+
+          Gold Market Insight
+
+        </p>
+
+        <p className="text-gray-300 leading-7">
+
+          {marketInsight}
+
+        </p>
+
+      </div>
+
       {/* STREAK */}
 
       <div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-orange-500/20">
@@ -384,15 +782,67 @@ export default function Home() {
 
         </h2>
 
-        <p className="text-gray-400 mt-2 text-sm">
+      </div>
 
-          Maintain consistent savings habit to strengthen your gold ownership journey.
+      {/* MILESTONES */}
+
+      <div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-yellow-500/10">
+
+        <p className="text-yellow-500 font-semibold mb-4">
+
+          Milestone Achievements
 
         </p>
 
+        <div className="flex flex-wrap gap-3">
+
+          {milestones.map(
+            (item, index) => (
+
+              <div
+                key={index}
+                className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-4 py-3 rounded-2xl text-sm"
+              >
+
+                {item}
+
+              </div>
+
+            )
+          )}
+
+        </div>
+
       </div>
 
-      {/* SMART INSIGHT */}
+      {/* ANALYTICS */}
+
+      <div className="mb-6">
+
+        <SavingsChart
+          history={history}
+        />
+
+      </div>
+
+      {/* EXPORT */}
+
+      <div className="mb-6">
+
+        <button
+          onClick={
+            handleDownloadReport
+          }
+          className="w-full bg-yellow-500 text-black py-4 rounded-2xl font-semibold"
+        >
+
+          Download Savings Report
+
+        </button>
+
+      </div>
+
+      {/* INSIGHT */}
 
       <div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-yellow-500/10">
 
@@ -472,9 +922,10 @@ export default function Home() {
           value={goldRate}
           onChange={(e) => {
 
-            const value = Number(
-              e.target.value
-            );
+            const value =
+              Number(
+                e.target.value
+              );
 
             setGoldRate(value);
 
@@ -520,56 +971,59 @@ export default function Home() {
 
         )}
 
-        {history.map((item, index) => (
+        {history.map(
+          (item, index) => (
 
-          <div
-            key={index}
-            className="bg-gray-900 p-4 rounded-2xl mb-3 border border-yellow-500/10"
-          >
+            <div
+              key={index}
+              className="bg-gray-900 p-4 rounded-2xl mb-3 border border-yellow-500/10"
+            >
 
-            <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start">
 
-              <div>
+                <div>
 
-                <p className="text-white text-lg font-semibold">
+                  <p className="text-white text-lg font-semibold">
 
-                  ₹ {item.amount}
+                    ₹ {item.amount}
 
-                </p>
+                  </p>
 
-                <p className="text-xs text-gray-400 mt-1">
+                </div>
 
-                  Source:
+                <div className="text-right">
+
+                  <p className="text-xs text-gray-500">
+
+                    {new Date(
+                      item.createdAt
+                    ).toLocaleDateString()}
+
+                  </p>
+
+                </div>
+
+              </div>
+
+              <div className="mt-3 text-sm text-gray-400 space-y-1">
+
+                <p>
+
+                  Gold Added:
                   {" "}
-                  {item.source || "Bank"}
+                  <span className="text-yellow-500">
+
+                    {item.goldGrams?.toFixed(3)} g
+
+                  </span>
 
                 </p>
 
-              </div>
+                <p className="text-xs text-gray-500">
 
-              <div className="text-right">
-
-                <p
-                  className={`text-xs uppercase font-semibold ${
-                    item.status === "success"
-                      ? "text-green-400"
-                      : item.status === "failed"
-                      ? "text-red-400"
-                      : "text-yellow-400"
-                  }`}
-                >
-
-                  {item.status}
-
-                </p>
-
-                <p className="text-xs text-gray-500 mt-1">
-
-                  {item.createdAt
-                    ? new Date(
-                        item.createdAt
-                      ).toLocaleDateString()
-                    : ""}
+                  TXN:
+                  {" "}
+                  {item.transactionId || "N/A"}
 
                 </p>
 
@@ -577,25 +1031,12 @@ export default function Home() {
 
             </div>
 
-            <div className="mt-3 text-sm text-gray-400">
-
-              Gold Added:
-              {" "}
-              <span className="text-yellow-500">
-
-                {item.goldGrams?.toFixed(3)} g
-
-              </span>
-
-            </div>
-
-          </div>
-
-        ))}
+          )
+        )}
 
       </div>
 
-      {/* BRAND MESSAGE */}
+      {/* BRAND */}
 
       <div className="mt-12 text-center space-y-3">
 

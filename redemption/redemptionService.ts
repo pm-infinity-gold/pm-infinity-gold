@@ -1,5 +1,27 @@
-import { RedemptionRequest }
-from "@/types/redemption";
+ import {
+  generateReceiptNumber,
+} from "@/services/receiptService";
+
+export interface RedemptionRequest {
+
+  id: string;
+
+  receiptNumber: string;
+
+  userId: string;
+
+  grams: number;
+
+  status:
+    | "requested"
+    | "approved"
+    | "processing"
+    | "dispatched"
+    | "delivered"
+    | "rejected";
+
+  createdAt: string;
+}
 
 export function createRedemptionRequest(
   userId: string,
@@ -8,7 +30,11 @@ export function createRedemptionRequest(
 
   return {
 
-    id: `RED-${Date.now()}`,
+    id:
+      `RED-${Date.now()}`,
+
+    receiptNumber:
+      generateReceiptNumber(),
 
     userId,
 
@@ -16,7 +42,7 @@ export function createRedemptionRequest(
 
     status: "requested",
 
-    createdAt: new Date().toISOString(),
-
+    createdAt:
+      new Date().toISOString(),
   };
 }

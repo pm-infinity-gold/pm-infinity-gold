@@ -1,49 +1,77 @@
-"use client";
+ "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
-export default function Login() {
-  const [name, setName] = useState("");
-  const router = useRouter();
+import {
+  saveLoginSession,
+} from "@/services/sessionService";
+
+export default function LoginPage() {
+
+  const [user, setUser] =
+    useState("");
 
   const handleLogin = () => {
-    if (!name) {
-      alert("Enter your name or phone");
+
+    if (!user.trim()) {
+
+      alert(
+        "Please enter username."
+      );
+
       return;
     }
 
-    localStorage.setItem("currentUser", name);
-    router.push("/");
+    localStorage.setItem(
+      "currentUser",
+      user
+    );
+
+    saveLoginSession(user);
+
+    window.location.href = "/";
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col justify-center px-6">
 
-      <h1 className="text-3xl text-yellow-500 mb-6">
-        PM Infinity Gold
-      </h1>
+    <div className="min-h-screen bg-black text-white flex items-center justify-center px-6">
 
-      <p className="mb-4 text-gray-400">
-        Enter your name or mobile number
-      </p>
+      <div className="w-full max-w-md bg-gray-900 p-8 rounded-3xl border border-yellow-500/10">
 
-      <input
-         
-  type="text"
-  value={name}
-  onChange={(e) => setName(e.target.value)}
-  className="w-full p-3 rounded-xl bg-gray-900 text-white border border-gray-600 focus:border-yellow-500 focus:outline-none"
-  placeholder="Enter your name or mobile"
-/>
-      
+        <h1 className="text-3xl font-bold text-yellow-500 mb-3">
 
-      <button
-        onClick={handleLogin}
-        className="mt-4 bg-yellow-500 text-black py-3 rounded-xl"
-      >
-        Continue
-      </button>
+          PM Infinity Gold
+
+        </h1>
+
+        <p className="text-gray-400 mb-8">
+
+          Secure access to your gold savings ecosystem.
+
+        </p>
+
+        <input
+          type="text"
+          value={user}
+          onChange={(e) =>
+            setUser(
+              e.target.value
+            )
+          }
+          placeholder="Enter username"
+          className="w-full p-4 rounded-2xl bg-black border border-gray-700 text-white mb-6"
+        />
+
+        <button
+          onClick={handleLogin}
+          className="w-full bg-yellow-500 text-black py-4 rounded-2xl font-semibold"
+        >
+
+          Login
+
+        </button>
+
+      </div>
 
     </div>
   );

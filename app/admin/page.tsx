@@ -4,9 +4,15 @@ import { useEffect, useState } from "react";
 
 import BottomNav from "@/components/BottomNav";
 
+import {
+  getAdminAnalytics,
+} from "@/services/adminAnalyticsService";
+
 interface RedemptionRequest {
 
   id: string;
+
+  receiptNumber: string;
 
   userId: string;
 
@@ -23,6 +29,19 @@ interface RedemptionRequest {
   createdAt: string;
 }
 
+interface UserProfile {
+
+  name: string;
+
+  phone: string;
+
+  address: string;
+
+  city: string;
+
+  pincode: string;
+}
+
 export default function AdminPage() {
 
   const [requests, setRequests] =
@@ -30,12 +49,15 @@ export default function AdminPage() {
 
   useEffect(() => {
 
-    const allRequests: RedemptionRequest[] = [];
+    const allRequests:
+      RedemptionRequest[] = [];
 
     for (let key in localStorage) {
 
       if (
-        key.endsWith("_redemptions")
+        key.endsWith(
+          "_redemptions"
+        )
       ) {
 
         const data =
@@ -47,7 +69,9 @@ export default function AdminPage() {
 
         if (Array.isArray(data)) {
 
-          allRequests.push(...data);
+          allRequests.push(
+            ...data
+          );
 
         }
 
@@ -58,6 +82,11 @@ export default function AdminPage() {
     setRequests(allRequests);
 
   }, []);
+
+  const analytics =
+    getAdminAnalytics(
+      requests
+    );
 
   const updateStatus = (
     id: string,
@@ -82,35 +111,60 @@ export default function AdminPage() {
     setRequests(updatedRequests);
 
     const groupedByUser:
-      Record<string, RedemptionRequest[]> = {};
+      Record<
+        string,
+        RedemptionRequest[]
+      > = {};
 
-    updatedRequests.forEach((item) => {
+    updatedRequests.forEach(
+      (item) => {
 
-      if (
-        !groupedByUser[item.userId]
-      ) {
+        if (
+          !groupedByUser[
+            item.userId
+          ]
+        ) {
 
-        groupedByUser[item.userId] = [];
+          groupedByUser[
+            item.userId
+          ] = [];
+
+        }
+
+        groupedByUser[
+          item.userId
+        ].push(item);
 
       }
+    );
 
-      groupedByUser[item.userId].push(item);
+    Object.keys(
+      groupedByUser
+    ).forEach((userId) => {
+
+      localStorage.setItem(
+        `${userId}_redemptions`,
+        JSON.stringify(
+          groupedByUser[
+            userId
+          ]
+        )
+      );
 
     });
 
-    Object.keys(groupedByUser)
-      .forEach((userId) => {
-
-        localStorage.setItem(
-          `${userId}_redemptions`,
-          JSON.stringify(
-            groupedByUser[userId]
-          )
-        );
-
-      });
-
     alert("Status updated");
+  };
+
+  const getProfile = (
+    userId: string
+  ): UserProfile => {
+
+    return JSON.parse(
+      localStorage.getItem(
+        `${userId}_profile`
+      ) || "{}"
+    );
   };
 
   return (
@@ -146,6 +200,76 @@ export default function AdminPage() {
 
       </p>
 
+      {/* ANALYTICS */}
+
+      <div className="grid grid-cols-2 gap-4 mb-8">
+
+        <div className="bg-gray-900 p-4 rounded-2xl border border-yellow-500/10">
+
+          <p className="text-gray-400 text-sm">
+
+            Total Requests
+
+          </p>
+
+          <h2 className="text-2xl font-bold text-yellow-500 mt-2">
+
+            {analytics.totalRequests}
+
+          </h2>
+
+        </div>
+
+        <div className="bg-gray-900 p-4 rounded-2xl border border-yellow-500/10">
+
+          <p className="text-gray-400 text-sm">
+
+            Gold Requested
+
+          </p>
+
+          <h2 className="text-2xl font-bold text-yellow-500 mt-2">
+
+            {analytics.totalGoldRequested.toFixed(3)} g
+
+          </h2>
+
+        </div>
+
+        <div className="bg-gray-900 p-4 rounded-2xl border border-yellow-500/10">
+
+          <p className="text-gray-400 text-sm">
+
+            Delivered
+
+          </p>
+
+          <h2 className="text-2xl font-bold text-green-400 mt-2">
+
+            {analytics.deliveredCount}
+
+          </h2>
+
+        </div>
+
+        <div className="bg-gray-900 p-4 rounded-2xl border border-yellow-500/10">
+
+          <p className="text-gray-400 text-sm">
+
+            Pending
+
+          </p>
+
+          <h2 className="text-2xl font-bold text-orange-400 mt-2">
+
+            {analytics.pendingCount}
+
+          </h2>
+
+        </div>
+
+      </div>
+
       {/* EMPTY */}
 
       {requests.length === 0 && (
@@ -164,144 +288,213 @@ export default function AdminPage() {
 
       {/* REQUESTS */}
 
-      {requests.map((item, index) => (
+      {requests.map((item, index) => {
 
-        <div
-          key={index}
-          className="bg-gray-900 p-5 rounded-2xl mb-5"
-        >
+        const profile =
+          getProfile(
+            item.userId
+          );
 
-          <div className="flex justify-between items-start">
+        return (
 
-            <div>
+          <div
+            key={index}
+            className="bg-gray-900 p-5 rounded-2xl mb-5 border border-yellow-500/10"
+          >
 
-              <p className="text-yellow-500 text-xl font-semibold">
+            {/* TOP */}
 
-                {item.grams.toFixed(3)} g
+            <div className="flex justify-between items-start">
 
-              </p>
+              <div>
 
-              <p className="text-gray-400 text-sm mt-1">
+                <p className="text-yellow-500 text-xl font-semibold">
 
-                User:
-                {" "}
-                {item.userId}
+                  {item.grams.toFixed(3)} g
 
-              </p>
+                </p>
 
-              <p className="text-gray-500 text-xs mt-1">
+                <p className="text-gray-400 text-sm mt-1">
 
-                {item.id}
+                  User:
+                  {" "}
+                  {item.userId}
 
-              </p>
+                </p>
+
+                <p className="text-gray-500 text-xs mt-1">
+
+                  {item.id}
+
+                </p>
+
+                <p className="text-yellow-500 text-xs mt-1">
+
+                  Receipt:
+                  {" "}
+                  {item.receiptNumber}
+
+                </p>
+
+              </div>
+
+              <div>
+
+                <p
+                  className={`text-xs uppercase font-semibold ${
+                    item.status ===
+                    "requested"
+                      ? "text-yellow-400"
+                      : item.status ===
+                        "approved"
+                      ? "text-green-400"
+                      : item.status ===
+                        "processing"
+                      ? "text-blue-400"
+                      : item.status ===
+                        "dispatched"
+                      ? "text-purple-400"
+                      : item.status ===
+                        "delivered"
+                      ? "text-green-500"
+                      : "text-red-400"
+                  }`}
+                >
+
+                  {item.status}
+
+                </p>
+
+              </div>
 
             </div>
 
-            <div>
+            {/* PROFILE */}
 
-              <p
-                className={`text-xs uppercase font-semibold ${
-                  item.status === "requested"
-                    ? "text-yellow-400"
-                    : item.status === "approved"
-                    ? "text-green-400"
-                    : item.status === "processing"
-                    ? "text-blue-400"
-                    : item.status === "dispatched"
-                    ? "text-purple-400"
-                    : item.status === "delivered"
-                    ? "text-green-500"
-                    : "text-red-400"
-                }`}
+            <div className="mt-5 bg-black/30 p-4 rounded-2xl border border-yellow-500/10">
+
+              <p className="text-yellow-500 font-semibold mb-3">
+
+                Customer Delivery Profile
+
+              </p>
+
+              <div className="space-y-2 text-sm text-gray-300">
+
+                <p>
+                  Name:
+                  {" "}
+                  {profile.name || "-"}
+                </p>
+
+                <p>
+                  Phone:
+                  {" "}
+                  {profile.phone || "-"}
+                </p>
+
+                <p>
+                  Address:
+                  {" "}
+                  {profile.address || "-"}
+                </p>
+
+                <p>
+                  City:
+                  {" "}
+                  {profile.city || "-"}
+                </p>
+
+                <p>
+                  Pincode:
+                  {" "}
+                  {profile.pincode || "-"}
+                </p>
+
+              </div>
+
+            </div>
+
+            {/* ACTIONS */}
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-5">
+
+              <button
+                onClick={() =>
+                  updateStatus(
+                    item.id,
+                    "approved"
+                  )
+                }
+                className="bg-green-600 py-2 rounded-xl"
               >
 
-                {item.status}
+                Approve
 
-              </p>
+              </button>
+
+              <button
+                onClick={() =>
+                  updateStatus(
+                    item.id,
+                    "processing"
+                  )
+                }
+                className="bg-blue-600 py-2 rounded-xl"
+              >
+
+                Processing
+
+              </button>
+
+              <button
+                onClick={() =>
+                  updateStatus(
+                    item.id,
+                    "dispatched"
+                  )
+                }
+                className="bg-purple-600 py-2 rounded-xl"
+              >
+
+                Dispatch
+
+              </button>
+
+              <button
+                onClick={() =>
+                  updateStatus(
+                    item.id,
+                    "delivered"
+                  )
+                }
+                className="bg-yellow-600 py-2 rounded-xl"
+              >
+
+                Delivered
+
+              </button>
+
+              <button
+                onClick={() =>
+                  updateStatus(
+                    item.id,
+                    "rejected"
+                  )
+                }
+                className="bg-red-600 py-2 rounded-xl"
+              >
+
+                Reject
+
+              </button>
 
             </div>
 
           </div>
 
-          {/* ACTIONS */}
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-5">
-
-            <button
-              onClick={() =>
-                updateStatus(
-                  item.id,
-                  "approved"
-                )
-              }
-              className="bg-green-600 py-2 rounded-xl"
-            >
-
-              Approve
-
-            </button>
-
-            <button
-              onClick={() =>
-                updateStatus(
-                  item.id,
-                  "processing"
-                )
-              }
-              className="bg-blue-600 py-2 rounded-xl"
-            >
-
-              Processing
-
-            </button>
-
-            <button
-              onClick={() =>
-                updateStatus(
-                  item.id,
-                  "dispatched"
-                )
-              }
-              className="bg-purple-600 py-2 rounded-xl"
-            >
-
-              Dispatch
-
-            </button>
-
-            <button
-              onClick={() =>
-                updateStatus(
-                  item.id,
-                  "delivered"
-                )
-              }
-              className="bg-yellow-600 py-2 rounded-xl"
-            >
-
-              Delivered
-
-            </button>
-
-            <button
-              onClick={() =>
-                updateStatus(
-                  item.id,
-                  "rejected"
-                )
-              }
-              className="bg-red-600 py-2 rounded-xl"
-            >
-
-              Reject
-
-            </button>
-
-          </div>
-
-        </div>
-
-      ))}
+        );
+      })}
 
       {/* INFO */}
 
@@ -320,11 +513,11 @@ export default function AdminPage() {
           </p>
 
           <p>
-            • Approve operational fulfillment
+            • Review delivery profile
           </p>
 
           <p>
-            • Track delivery lifecycle
+            • Manage fulfillment lifecycle
           </p>
 
           <p>

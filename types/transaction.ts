@@ -1,16 +1,12 @@
  export interface Transaction {
 
-  id: string;
-
-  userId: string;
+  transactionId?: string;
 
   amount: number;
 
-  goldGrams: number;
+  goldGrams?: number;
 
-  goldRate: number;
-
-  source: string;
+  source?: string;
 
   status:
     | "success"

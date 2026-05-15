@@ -1,39 +1,27 @@
  "use client";
 
-import { useEffect, useState } from "react";
-
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import {
+  calculateGoldEquivalent,
   DEFAULT_GOLD_RATE,
 } from "@/services/goldService";
 
 import {
-  createTransaction,
-} from "@/services/transactionService";
+  generateTransactionId,
+} from "@/services/transactionVerificationService";
 
-import BottomNav from "@/components/BottomNav";
+import { Transaction } from "@/types/transaction";
 
 export default function AddSavingPage() {
-
-  const router = useRouter();
-
-  const [user, setUser] =
-    useState("");
 
   const [amount, setAmount] =
     useState("");
 
-  const [source, setSource] =
-    useState("Bank");
+  const [loading, setLoading] =
+    useState(false);
 
-  const [total, setTotal] =
-    useState(0);
-
-  const [history, setHistory] =
-    useState<any[]>([]);
-
-  useEffect(() => {
+  const handleSave = () => {
 
     const currentUser =
       localStorage.getItem(
@@ -42,41 +30,8 @@ export default function AddSavingPage() {
 
     if (!currentUser) {
 
-      router.push("/login");
-
-      return;
-    }
-
-    setUser(currentUser);
-
-    const storedTotal = Number(
-      localStorage.getItem(
-        `${currentUser}_total`
-      ) || 0
-    );
-
-    const storedHistory =
-      JSON.parse(
-        localStorage.getItem(
-          `${currentUser}_history`
-        ) || "[]"
-      );
-
-    setTotal(storedTotal);
-
-    setHistory(
-      Array.isArray(storedHistory)
-        ? storedHistory
-        : []
-    );
-
-  }, [router]);
-
-  const handleSave = () => {
-
-    if (!amount) {
-
-      alert("Please enter amount");
+      window.location.href =
+        "/login";
 
       return;
     }
@@ -84,188 +39,153 @@ export default function AddSavingPage() {
     const numericAmount =
       Number(amount);
 
-    const newTotal =
-      total + numericAmount;
+    if (
+      !numericAmount ||
+      numericAmount <= 0
+    ) {
 
-    const goldRate = Number(
-      localStorage.getItem(
-        "goldRate"
-      ) || DEFAULT_GOLD_RATE
-    );
-
-    const transaction =
-      createTransaction(
-        user,
-        numericAmount,
-        goldRate,
-        source
+      alert(
+        "Please enter valid amount."
       );
 
-    const updatedHistory = [
-      transaction,
-      ...history,
-    ];
+      return;
+    }
 
-    localStorage.setItem(
-      `${user}_total`,
-      newTotal.toString()
-    );
+    setLoading(true);
 
-    localStorage.setItem(
-      `${user}_history`,
-      JSON.stringify(
-        updatedHistory
-      )
-    );
+    setTimeout(() => {
 
-    setTotal(newTotal);
+      const existingTotal =
+        Number(
+          localStorage.getItem(
+            `${currentUser}_total`
+          ) || 0
+        );
 
-    setHistory(updatedHistory);
+      const goldRate =
+        Number(
+          localStorage.getItem(
+            "goldRate"
+          ) || DEFAULT_GOLD_RATE
+        );
 
-    alert(
-      `Saved ₹ ${numericAmount} via ${source}`
-    );
+      const goldGrams =
+        calculateGoldEquivalent(
+          numericAmount,
+          goldRate
+        );
 
-    setAmount("");
+      const transaction:
+        Transaction = {
 
-    router.push("/");
+        transactionId:
+          generateTransactionId(),
+
+        amount:
+          numericAmount,
+
+        goldGrams,
+
+        source: "Bank",
+
+        status: "success",
+
+        createdAt:
+          new Date().toISOString(),
+      };
+
+      const history =
+        JSON.parse(
+          localStorage.getItem(
+            `${currentUser}_history`
+          ) || "[]"
+        );
+
+      const updatedHistory = [
+        transaction,
+        ...history,
+      ];
+
+      localStorage.setItem(
+        `${currentUser}_history`,
+        JSON.stringify(
+          updatedHistory
+        )
+      );
+
+      localStorage.setItem(
+        `${currentUser}_total`,
+        (
+          existingTotal +
+          numericAmount
+        ).toString()
+      );
+
+      setLoading(false);
+
+      alert(
+        "Savings recorded successfully."
+      );
+
+      window.location.href =
+        "/";
+
+    }, 1000);
   };
 
   return (
 
-    <div className="min-h-screen bg-black text-white p-6 pb-28">
+    <div className="min-h-screen bg-black text-white px-6 py-10">
 
-      {/* BACK */}
+      <div className="max-w-md mx-auto">
 
-      <button
-        onClick={() => {
-          router.push("/");
-        }}
-        className="mb-4 text-yellow-500"
-      >
+        <h1 className="text-3xl font-bold text-yellow-500 mb-3">
 
-        ← Back
+          Record Saving
 
-      </button>
+        </h1>
 
-      {/* TITLE */}
+        <p className="text-gray-400 mb-8">
 
-      <h1 className="text-2xl text-yellow-500 mb-4">
-
-        Record Your Saving
-
-      </h1>
-
-      <p className="text-gray-400 mb-6 text-sm">
-
-        Add your savings amount to continue your gold journey.
-
-      </p>
-
-      {/* AMOUNT */}
-
-      <input
-        type="number"
-        placeholder="Enter amount"
-        value={amount}
-        onChange={(e) =>
-          setAmount(
-            e.target.value
-          )
-        }
-        className="w-full p-3 rounded-xl text-black bg-white"
-      />
-
-      {/* SOURCE */}
-
-      <select
-        value={source}
-        onChange={(e) =>
-          setSource(
-            e.target.value
-          )
-        }
-        className="w-full mt-4 p-3 rounded-xl text-black"
-      >
-
-        <option>
-          Bank
-        </option>
-
-        <option>
-          Cash
-        </option>
-
-        <option>
-          UPI
-        </option>
-
-        <option>
-          Jewellery Shop
-        </option>
-
-        <option>
-          Other
-        </option>
-
-      </select>
-
-      {/* BUTTON */}
-
-      <button
-        onClick={handleSave}
-        className="w-full bg-yellow-500 text-black py-3 rounded-xl mt-4 font-semibold"
-      >
-
-        Record Saving
-
-      </button>
-
-      {/* TOTAL */}
-
-      <div className="mt-6 text-lg">
-
-        Total Saved:
-        {" "}
-        ₹ {total}
-
-      </div>
-
-      {/* INFO */}
-
-      <div className="mt-8 bg-gradient-to-r from-yellow-500/10 to-yellow-700/10 border border-yellow-500/20 p-5 rounded-2xl">
-
-        <p className="text-yellow-500 font-semibold mb-2">
-
-          Flexible Saving Modes
+          Add your savings to grow your gold ownership journey.
 
         </p>
 
-        <div className="space-y-2 text-sm text-gray-400">
+        <div className="bg-gray-900 p-6 rounded-3xl border border-yellow-500/10">
 
-          <p>
-            • Save using bank transfer
-          </p>
+          <label className="block text-sm text-gray-400 mb-3">
 
-          <p>
-            • Record UPI or cash savings
-          </p>
+            Savings Amount (₹)
 
-          <p>
-            • Track all saving sources
-          </p>
+          </label>
 
-          <p>
-            • Build disciplined gold ownership
-          </p>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) =>
+              setAmount(
+                e.target.value
+              )
+            }
+            placeholder="Enter amount"
+            className="w-full p-4 rounded-2xl bg-black border border-gray-700 text-white mb-6"
+          />
+
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="w-full bg-yellow-500 text-black py-4 rounded-2xl font-semibold"
+          >
+
+            {loading
+              ? "Processing..."
+              : "Save Now"}
+
+          </button>
 
         </div>
 
       </div>
-
-      {/* BOTTOM NAV */}
-
-      <BottomNav />
 
     </div>
   );
