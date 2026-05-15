@@ -2,267 +2,275 @@
 
 import { useEffect, useState } from "react";
 
-import BottomNav from "@/components/BottomNav";
+import { appConfig } from "@/admin/appConfig";
+
+import {
+  updateRedemptionStatus,
+} from "@/redemption/redemptionService";
 
 import {
   getAdminAnalytics,
 } from "@/services/adminAnalyticsService";
 
+import {
+  isAdminLoggedIn,
+  logoutAdmin,
+} from "@/services/adminAuthService";
+
 interface RedemptionRequest {
 
   id: string;
 
-  receiptNumber: string;
-
-  userId: string;
+  user: string;
 
   grams: number;
 
-  status:
-    | "requested"
-    | "approved"
-    | "processing"
-    | "dispatched"
-    | "delivered"
-    | "rejected";
+  status: string;
 
   createdAt: string;
 }
 
-interface UserProfile {
-
-  name: string;
-
-  phone: string;
-
-  address: string;
-
-  city: string;
-
-  pincode: string;
-}
-
 export default function AdminPage() {
 
-  const [requests, setRequests] =
-    useState<RedemptionRequest[]>([]);
+  const [requests,
+    setRequests] =
+    useState<
+      RedemptionRequest[]
+    >([]);
 
-  useEffect(() => {
+  const [paused,
+    setPaused] =
+    useState(
+      appConfig.appPaused
+    );
 
-    const allRequests:
-      RedemptionRequest[] = [];
+  const [authorized,
+    setAuthorized] =
+    useState(false);
 
-    for (let key in localStorage) {
+  const analytics =
+    getAdminAnalytics();
 
-      if (
-        key.endsWith(
-          "_redemptions"
-        )
+  const loadRequests =
+    () => {
+
+      const allRequests:
+        RedemptionRequest[] = [];
+
+      for (
+        let i = 0;
+        i < localStorage.length;
+        i++
       ) {
 
-        const data =
-          JSON.parse(
-            localStorage.getItem(
-              key
-            ) || "[]"
-          );
+        const key =
+          localStorage.key(i);
 
-        if (Array.isArray(data)) {
+        if (
+          key?.endsWith(
+            "_redemptions"
+          )
+        ) {
+
+          const data =
+            JSON.parse(
+              localStorage.getItem(
+                key
+              ) || "[]"
+            );
 
           allRequests.push(
             ...data
           );
-
         }
-
       }
 
+      allRequests.sort(
+        (a, b) =>
+          new Date(
+            b.createdAt
+          ).getTime() -
+          new Date(
+            a.createdAt
+          ).getTime()
+      );
+
+      setRequests(
+        allRequests
+      );
+    };
+
+  useEffect(() => {
+
+    const loggedIn =
+      isAdminLoggedIn();
+
+    if (!loggedIn) {
+
+      window.location.href =
+        "/admin-login";
+
+      return;
     }
 
-    setRequests(allRequests);
+    setAuthorized(true);
+
+    loadRequests();
 
   }, []);
 
-  const analytics =
-    getAdminAnalytics(
-      requests
-    );
+  const handleStatusUpdate =
+    (
+      requestId: string,
+      status: string
+    ) => {
 
-  const updateStatus = (
-    id: string,
-    status: RedemptionRequest["status"]
-  ) => {
-
-    const updatedRequests =
-      requests.map((item) => {
-
-        if (item.id === id) {
-
-          return {
-            ...item,
-            status,
-          };
-
-        }
-
-        return item;
-      });
-
-    setRequests(updatedRequests);
-
-    const groupedByUser:
-      Record<
-        string,
-        RedemptionRequest[]
-      > = {};
-
-    updatedRequests.forEach(
-      (item) => {
-
-        if (
-          !groupedByUser[
-            item.userId
-          ]
-        ) {
-
-          groupedByUser[
-            item.userId
-          ] = [];
-
-        }
-
-        groupedByUser[
-          item.userId
-        ].push(item);
-
-      }
-    );
-
-    Object.keys(
-      groupedByUser
-    ).forEach((userId) => {
-
-      localStorage.setItem(
-        `${userId}_redemptions`,
-        JSON.stringify(
-          groupedByUser[
-            userId
-          ]
-        )
+      updateRedemptionStatus(
+        requestId,
+        status
       );
 
-    });
+      loadRequests();
+    };
 
-    alert("Status updated");
-  };
+  const toggleApp =
+    () => {
 
-  const getProfile = (
-    userId: string
-  ): UserProfile => {
+      appConfig.appPaused =
+        !paused;
 
-    return JSON.parse(
-      localStorage.getItem(
-        `${userId}_profile`
-      ) || "{}"
-    );
-  };
+      setPaused(
+        appConfig.appPaused
+      );
+    };
+
+  const handleLogout =
+    () => {
+
+      logoutAdmin();
+
+      window.location.href =
+        "/admin-login";
+    };
+
+  if (!authorized) {
+
+    return null;
+  }
 
   return (
 
-    <div className="min-h-screen bg-black text-white px-6 py-10 pb-28">
+    <div className="min-h-screen bg-black text-white px-6 py-10">
 
       {/* HEADER */}
 
       <div className="flex justify-between items-center mb-8">
 
-        <h1 className="text-3xl font-bold text-yellow-500">
+        <div>
 
-          Admin Dashboard
+          <h1 className="text-3xl font-bold text-yellow-500">
 
-        </h1>
+            Admin Operations
 
-        <button
-          onClick={() => {
-            window.location.href = "/";
-          }}
-          className="text-yellow-500"
-        >
+          </h1>
 
-          ← Back
+          <p className="text-gray-400 mt-2">
 
-        </button>
+            Executive redemption & platform management dashboard.
+
+          </p>
+
+        </div>
+
+        <div className="flex gap-4 items-center">
+
+          <button
+            onClick={() => {
+              window.location.href = "/";
+            }}
+            className="text-yellow-500"
+          >
+
+            ← Dashboard
+
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="text-red-400"
+          >
+
+            Logout
+
+          </button>
+
+        </div>
 
       </div>
 
-      <p className="text-gray-400 mb-8">
-
-        Manage redemption requests and operational workflow.
-
-      </p>
-
-      {/* ANALYTICS */}
+      {/* EXECUTIVE ANALYTICS */}
 
       <div className="grid grid-cols-2 gap-4 mb-8">
 
-        <div className="bg-gray-900 p-4 rounded-2xl border border-yellow-500/10">
+        <div className="bg-gray-900 p-5 rounded-2xl border border-yellow-500/10">
 
           <p className="text-gray-400 text-sm">
 
-            Total Requests
+            Total Users
 
           </p>
 
-          <h2 className="text-2xl font-bold text-yellow-500 mt-2">
+          <h2 className="text-3xl font-bold text-yellow-500 mt-2">
 
-            {analytics.totalRequests}
+            {analytics.totalUsers}
 
           </h2>
 
         </div>
 
-        <div className="bg-gray-900 p-4 rounded-2xl border border-yellow-500/10">
+        <div className="bg-gray-900 p-5 rounded-2xl border border-yellow-500/10">
 
           <p className="text-gray-400 text-sm">
 
-            Gold Requested
+            Platform Savings
 
           </p>
 
-          <h2 className="text-2xl font-bold text-yellow-500 mt-2">
+          <h2 className="text-3xl font-bold text-yellow-500 mt-2">
 
-            {analytics.totalGoldRequested.toFixed(3)} g
+            ₹ {analytics.totalSavings}
 
           </h2>
 
         </div>
 
-        <div className="bg-gray-900 p-4 rounded-2xl border border-yellow-500/10">
+        <div className="bg-gray-900 p-5 rounded-2xl border border-yellow-500/10">
 
           <p className="text-gray-400 text-sm">
 
-            Delivered
+            Gold Liability
 
           </p>
 
-          <h2 className="text-2xl font-bold text-green-400 mt-2">
+          <h2 className="text-3xl font-bold text-yellow-500 mt-2">
 
-            {analytics.deliveredCount}
+            {analytics.totalGoldLiability.toFixed(3)} g
 
           </h2>
 
         </div>
 
-        <div className="bg-gray-900 p-4 rounded-2xl border border-yellow-500/10">
+        <div className="bg-gray-900 p-5 rounded-2xl border border-yellow-500/10">
 
           <p className="text-gray-400 text-sm">
 
-            Pending
+            Pending Requests
 
           </p>
 
-          <h2 className="text-2xl font-bold text-orange-400 mt-2">
+          <h2 className="text-3xl font-bold text-yellow-500 mt-2">
 
-            {analytics.pendingCount}
+            {analytics.pendingRedemptions}
 
           </h2>
 
@@ -270,267 +278,175 @@ export default function AdminPage() {
 
       </div>
 
-      {/* EMPTY */}
+      {/* APP CONTROL */}
 
-      {requests.length === 0 && (
+      <div className="bg-gray-900 p-6 rounded-3xl border border-yellow-500/10 mb-8">
 
-        <div className="bg-gray-900 p-6 rounded-2xl text-center">
+        <div className="flex justify-between items-center">
 
-          <p className="text-gray-400">
+          <div>
 
-            No redemption requests found.
+            <p className="text-yellow-500 font-semibold">
 
-          </p>
+              Platform Status
 
-        </div>
+            </p>
 
-      )}
+            <p className="text-gray-400 text-sm mt-1">
 
-      {/* REQUESTS */}
+              Enable or pause platform access globally.
 
-      {requests.map((item, index) => {
-
-        const profile =
-          getProfile(
-            item.userId
-          );
-
-        return (
-
-          <div
-            key={index}
-            className="bg-gray-900 p-5 rounded-2xl mb-5 border border-yellow-500/10"
-          >
-
-            {/* TOP */}
-
-            <div className="flex justify-between items-start">
-
-              <div>
-
-                <p className="text-yellow-500 text-xl font-semibold">
-
-                  {item.grams.toFixed(3)} g
-
-                </p>
-
-                <p className="text-gray-400 text-sm mt-1">
-
-                  User:
-                  {" "}
-                  {item.userId}
-
-                </p>
-
-                <p className="text-gray-500 text-xs mt-1">
-
-                  {item.id}
-
-                </p>
-
-                <p className="text-yellow-500 text-xs mt-1">
-
-                  Receipt:
-                  {" "}
-                  {item.receiptNumber}
-
-                </p>
-
-              </div>
-
-              <div>
-
-                <p
-                  className={`text-xs uppercase font-semibold ${
-                    item.status ===
-                    "requested"
-                      ? "text-yellow-400"
-                      : item.status ===
-                        "approved"
-                      ? "text-green-400"
-                      : item.status ===
-                        "processing"
-                      ? "text-blue-400"
-                      : item.status ===
-                        "dispatched"
-                      ? "text-purple-400"
-                      : item.status ===
-                        "delivered"
-                      ? "text-green-500"
-                      : "text-red-400"
-                  }`}
-                >
-
-                  {item.status}
-
-                </p>
-
-              </div>
-
-            </div>
-
-            {/* PROFILE */}
-
-            <div className="mt-5 bg-black/30 p-4 rounded-2xl border border-yellow-500/10">
-
-              <p className="text-yellow-500 font-semibold mb-3">
-
-                Customer Delivery Profile
-
-              </p>
-
-              <div className="space-y-2 text-sm text-gray-300">
-
-                <p>
-                  Name:
-                  {" "}
-                  {profile.name || "-"}
-                </p>
-
-                <p>
-                  Phone:
-                  {" "}
-                  {profile.phone || "-"}
-                </p>
-
-                <p>
-                  Address:
-                  {" "}
-                  {profile.address || "-"}
-                </p>
-
-                <p>
-                  City:
-                  {" "}
-                  {profile.city || "-"}
-                </p>
-
-                <p>
-                  Pincode:
-                  {" "}
-                  {profile.pincode || "-"}
-                </p>
-
-              </div>
-
-            </div>
-
-            {/* ACTIONS */}
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-5">
-
-              <button
-                onClick={() =>
-                  updateStatus(
-                    item.id,
-                    "approved"
-                  )
-                }
-                className="bg-green-600 py-2 rounded-xl"
-              >
-
-                Approve
-
-              </button>
-
-              <button
-                onClick={() =>
-                  updateStatus(
-                    item.id,
-                    "processing"
-                  )
-                }
-                className="bg-blue-600 py-2 rounded-xl"
-              >
-
-                Processing
-
-              </button>
-
-              <button
-                onClick={() =>
-                  updateStatus(
-                    item.id,
-                    "dispatched"
-                  )
-                }
-                className="bg-purple-600 py-2 rounded-xl"
-              >
-
-                Dispatch
-
-              </button>
-
-              <button
-                onClick={() =>
-                  updateStatus(
-                    item.id,
-                    "delivered"
-                  )
-                }
-                className="bg-yellow-600 py-2 rounded-xl"
-              >
-
-                Delivered
-
-              </button>
-
-              <button
-                onClick={() =>
-                  updateStatus(
-                    item.id,
-                    "rejected"
-                  )
-                }
-                className="bg-red-600 py-2 rounded-xl"
-              >
-
-                Reject
-
-              </button>
-
-            </div>
+            </p>
 
           </div>
 
-        );
-      })}
+          <button
+            onClick={toggleApp}
+            className={`px-5 py-3 rounded-2xl font-semibold ${
+              paused
+                ? "bg-red-500 text-white"
+                : "bg-green-500 text-black"
+            }`}
+          >
 
-      {/* INFO */}
+            {paused
+              ? "Resume Platform"
+              : "Pause Platform"}
 
-      <div className="mt-10 bg-gradient-to-r from-yellow-500/10 to-yellow-700/10 border border-yellow-500/20 p-5 rounded-2xl">
-
-        <p className="text-yellow-500 font-semibold mb-2">
-
-          Admin Operations
-
-        </p>
-
-        <div className="space-y-2 text-sm text-gray-400">
-
-          <p>
-            • Verify redemption eligibility
-          </p>
-
-          <p>
-            • Review delivery profile
-          </p>
-
-          <p>
-            • Manage fulfillment lifecycle
-          </p>
-
-          <p>
-            • Maintain operational transparency
-          </p>
+          </button>
 
         </div>
 
       </div>
 
-      {/* BOTTOM NAV */}
+      {/* REDEMPTION REQUESTS */}
 
-      <BottomNav />
+      <div>
+
+        <h2 className="text-yellow-500 text-xl font-semibold mb-5">
+
+          Redemption Requests
+
+        </h2>
+
+        {requests.length === 0 && (
+
+          <div className="bg-gray-900 p-6 rounded-2xl text-gray-500">
+
+            No redemption requests available.
+
+          </div>
+
+        )}
+
+        <div className="space-y-4">
+
+          {requests.map(
+            (request) => (
+
+              <div
+                key={request.id}
+                className="bg-gray-900 p-5 rounded-2xl border border-yellow-500/10"
+              >
+
+                <div className="flex justify-between items-start">
+
+                  <div>
+
+                    <p className="text-yellow-500 font-semibold">
+
+                      {request.user}
+
+                    </p>
+
+                    <p className="text-gray-300 mt-1">
+
+                      {request.grams.toFixed(3)} g
+
+                    </p>
+
+                    <p className="text-xs text-gray-500 mt-2">
+
+                      {new Date(
+                        request.createdAt
+                      ).toLocaleString()}
+
+                    </p>
+
+                  </div>
+
+                  <div className="text-right">
+
+                    <p className="text-sm text-gray-400 mb-3">
+
+                      Status:
+                      {" "}
+                      <span className="text-yellow-500">
+
+                        {request.status}
+
+                      </span>
+
+                    </p>
+
+                    <div className="flex gap-2 flex-wrap justify-end">
+
+                      <button
+                        onClick={() =>
+                          handleStatusUpdate(
+                            request.id,
+                            "Approved"
+                          )
+                        }
+                        className="bg-green-500 text-black px-3 py-2 rounded-xl text-sm font-semibold"
+                      >
+
+                        Approve
+
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          handleStatusUpdate(
+                            request.id,
+                            "Dispatched"
+                          )
+                        }
+                        className="bg-blue-500 text-white px-3 py-2 rounded-xl text-sm font-semibold"
+                      >
+
+                        Dispatch
+
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          handleStatusUpdate(
+                            request.id,
+                            "Delivered"
+                          )
+                        }
+                        className="bg-yellow-500 text-black px-3 py-2 rounded-xl text-sm font-semibold"
+                      >
+
+                        Deliver
+
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            )
+          )}
+
+        </div>
+
+      </div>
 
     </div>
   );

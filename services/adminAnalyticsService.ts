@@ -1,48 +1,95 @@
-interface RedemptionRequest {
+ interface AdminAnalytics {
 
-  grams: number;
+  totalUsers: number;
 
-  status: string;
+  totalSavings: number;
+
+  totalGoldLiability: number;
+
+  pendingRedemptions: number;
 }
 
-export function getAdminAnalytics(
-  requests: RedemptionRequest[]
-) {
+export function getAdminAnalytics() :
+  AdminAnalytics {
 
-  const totalRequests =
-    requests.length;
+  let totalUsers = 0;
 
-  const totalGoldRequested =
-    requests.reduce(
-      (sum, item) =>
-        sum + item.grams,
-      0
-    );
+  let totalSavings = 0;
 
-  const deliveredCount =
-    requests.filter(
-      (item) =>
-        item.status ===
-        "delivered"
-    ).length;
+  let totalGoldLiability = 0;
 
-  const pendingCount =
-    requests.filter(
-      (item) =>
-        item.status !==
-          "delivered" &&
-        item.status !==
-          "rejected"
-    ).length;
+  let pendingRedemptions = 0;
+
+  for (
+    let i = 0;
+    i < localStorage.length;
+    i++
+  ) {
+
+    const key =
+      localStorage.key(i);
+
+    if (!key) continue;
+
+    /* USERS */
+
+    if (
+      key.endsWith("_total")
+    ) {
+
+      totalUsers++;
+
+      const amount =
+        Number(
+          localStorage.getItem(
+            key
+          ) || 0
+        );
+
+      totalSavings += amount;
+    }
+
+    /* REDEMPTIONS */
+
+    if (
+      key.endsWith(
+        "_redemptions"
+      )
+    ) {
+
+      const redemptions =
+        JSON.parse(
+          localStorage.getItem(
+            key
+          ) || "[]"
+        );
+
+      redemptions.forEach(
+        (item: any) => {
+
+          totalGoldLiability +=
+            item.grams || 0;
+
+          if (
+            item.status ===
+            "Pending"
+          ) {
+
+            pendingRedemptions++;
+          }
+        }
+      );
+    }
+  }
 
   return {
 
-    totalRequests,
+    totalUsers,
 
-    totalGoldRequested,
+    totalSavings,
 
-    deliveredCount,
+    totalGoldLiability,
 
-    pendingCount,
+    pendingRedemptions,
   };
 }
