@@ -4,63 +4,110 @@ export default function BottomNav() {
 
   return (
 
-    <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-yellow-500/20 flex justify-around items-center py-3 z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-yellow-500/10 px-1 py-3 flex justify-around items-center z-50 overflow-x-auto">
 
-      <a
-        href="/"
-        className="text-yellow-500 text-sm font-medium"
+      <button
+        onClick={() => {
+          window.location.href = "/";
+        }}
+        className="flex flex-col items-center text-yellow-500 text-xs min-w-[60px]"
       >
+
+        <span className="text-lg">
+
+          🏠
+
+        </span>
 
         Home
 
-      </a>
+      </button>
 
-      <a
-        href="/add-saving"
-        className="text-gray-300 text-sm"
+      <button
+        onClick={() => {
+          window.location.href = "/wallet";
+        }}
+        className="flex flex-col items-center text-cyan-400 text-xs min-w-[60px]"
       >
 
-        Save
+        <span className="text-lg">
 
-      </a>
+          💳
 
-      <a
-        href="/redemptions"
-        className="text-gray-300 text-sm"
+        </span>
+
+        Wallet
+
+      </button>
+
+      <button
+        onClick={() => {
+          window.location.href = "/buy-gold";
+        }}
+        className="flex flex-col items-center text-yellow-500 text-xs min-w-[60px]"
       >
 
-        Redeem
+        <span className="text-lg">
 
-      </a>
+          🪙
 
-      <a
-        href="/profile"
-        className="text-gray-300 text-sm"
+        </span>
+
+        Buy
+
+      </button>
+
+      <button
+        onClick={() => {
+          window.location.href = "/sell-gold";
+        }}
+        className="flex flex-col items-center text-red-400 text-xs min-w-[60px]"
       >
+
+        <span className="text-lg">
+
+          💰
+
+        </span>
+
+        Sell
+
+      </button>
+
+      <button
+        onClick={() => {
+          window.location.href = "/profile";
+        }}
+        className="flex flex-col items-center text-yellow-500 text-xs min-w-[60px]"
+      >
+
+        <span className="text-lg">
+
+          👤
+
+        </span>
 
         Profile
 
-      </a>
+      </button>
 
-      <a
-        href="/about"
-        className="text-gray-300 text-sm"
+      <button
+        onClick={() => {
+          window.location.href = "/admin";
+        }}
+        className="flex flex-col items-center text-red-400 text-xs min-w-[60px]"
       >
 
-        About
+        <span className="text-lg">
 
-      </a>
+          ⚙️
 
-      <a
-        href="/admin"
-        className="text-gray-300 text-sm"
-      >
+        </span>
 
         Admin
 
-      </a>
+      </button>
 
     </div>
-
   );
 }

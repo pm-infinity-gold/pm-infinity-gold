@@ -79,6 +79,14 @@ import {
   getDailyMotivation,
 } from "@/services/motivationService";
 import {
+  getWalletBalance,
+} from "@/services/walletService";
+
+import {
+  getPortfolioData,
+} from "@/services/portfolioService";
+
+import {
   getUserLevel,
 } from "@/services/userLevelService";
 import BottomNav from "@/components/BottomNav";
@@ -194,6 +202,24 @@ const announcements =
   getAnnouncements();
 const motivation =
   getDailyMotivation();
+  const walletBalance =
+  user
+    ? getWalletBalance(
+        user
+      )
+    : 0;
+const portfolio =
+  user
+    ? getPortfolioData(
+        user
+      )
+    : {
+        investedAmount: 0,
+        goldOwned: 0,
+        estimatedValue: 0,
+        growth: 0,
+      };
+
   const trustStatus =
     getAccountTrustStatus({
       total,
@@ -611,6 +637,125 @@ const userLevel =
   </p>
 
 </div>
+ {/* DIGITAL WALLET */}
+
+<div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-cyan-500/10">
+
+  <div className="flex justify-between items-center">
+
+    <div>
+
+      <p className="text-cyan-400 font-semibold mb-2">
+
+        Digital Wallet
+
+      </p>
+
+      <h2 className="text-3xl font-bold text-white">
+
+        ₹ {walletBalance}
+
+      </h2>
+
+    </div>
+
+    <div className="text-right">
+
+      <p className="text-xs text-gray-500">
+
+        Wallet Balance
+
+      </p>
+
+      <p className="text-cyan-400 text-sm mt-2">
+
+        Payment Infrastructure Active
+
+      </p>
+
+    </div>
+
+  </div>
+
+</div>    
+     
+ {/* GOLD PORTFOLIO */}
+
+<div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-green-500/10">
+
+  <div className="flex justify-between items-start">
+
+    <div>
+
+      <p className="text-green-400 font-semibold mb-2">
+
+        Gold Portfolio
+
+      </p>
+
+      <h2 className="text-3xl font-bold text-white">
+
+        ₹ {portfolio.estimatedValue.toFixed(2)}
+
+      </h2>
+
+    </div>
+
+    <div className="text-right">
+
+      <p className="text-xs text-gray-500">
+
+        Gold Owned
+
+      </p>
+
+      <p className="text-green-400 text-lg font-semibold mt-2">
+
+        {portfolio.goldOwned.toFixed(3)} g
+
+      </p>
+
+    </div>
+
+  </div>
+
+  <div className="mt-5 grid grid-cols-2 gap-4">
+
+    <div className="bg-black border border-green-500/10 rounded-2xl p-4">
+
+      <p className="text-xs text-gray-500 mb-2">
+
+        Invested
+
+      </p>
+
+      <p className="text-white font-semibold">
+
+        ₹ {portfolio.investedAmount.toFixed(2)}
+
+      </p>
+
+    </div>
+
+    <div className="bg-black border border-green-500/10 rounded-2xl p-4">
+
+      <p className="text-xs text-gray-500 mb-2">
+
+        Portfolio Growth
+
+      </p>
+
+      <p className="text-green-400 font-semibold">
+
+        ₹ {portfolio.growth.toFixed(2)}
+
+      </p>
+
+    </div>
+
+  </div>
+
+</div>   
       {/* HERO */}
 
       <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-700/10 border border-yellow-500/20 rounded-3xl p-6 mb-6">
