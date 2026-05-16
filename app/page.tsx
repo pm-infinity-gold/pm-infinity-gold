@@ -72,6 +72,13 @@ import {
   generateActivities,
 } from "@/services/activityService";
 import {
+  getAnnouncements,
+} from "@/services/announcementService";
+
+import {
+  getDailyMotivation,
+} from "@/services/motivationService";
+import {
   getUserLevel,
 } from "@/services/userLevelService";
 import BottomNav from "@/components/BottomNav";
@@ -183,7 +190,10 @@ export default function Home() {
       history,
       redemptions
     );
-
+const announcements =
+  getAnnouncements();
+const motivation =
+  getDailyMotivation();
   const trustStatus =
     getAccountTrustStatus({
       total,
@@ -532,7 +542,75 @@ const userLevel =
         </div>
 
       )}
+{/* PLATFORM ANNOUNCEMENTS */}
 
+{announcements.length > 0 && (
+
+  <div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-yellow-500/10">
+
+    <p className="text-yellow-500 font-semibold mb-4">
+
+      Platform Announcements
+
+    </p>
+
+    <div className="space-y-4">
+
+      {announcements
+        .slice(0, 3)
+        .map(
+          (
+            item: any,
+            index: number
+          ) => (
+
+            <div
+              key={index}
+              className="border-l-2 border-yellow-500 pl-4"
+            >
+
+              <p className="text-gray-200 text-sm leading-6">
+
+                {item.message}
+
+              </p>
+
+              <p className="text-xs text-gray-500 mt-1">
+
+                {new Date(
+                  item.createdAt
+                ).toLocaleString()}
+
+              </p>
+
+            </div>
+
+          )
+        )}
+
+    </div>
+
+  </div>
+
+)}
+      
+{/* DAILY MOTIVATION */}
+
+<div className="bg-gradient-to-r from-yellow-500/10 to-yellow-700/10 border border-yellow-500/20 p-5 rounded-2xl mb-6">
+
+  <p className="text-yellow-500 font-semibold mb-2">
+
+    Daily Motivation
+
+  </p>
+
+  <p className="text-gray-200 leading-7">
+
+    {motivation}
+
+  </p>
+
+</div>
       {/* HERO */}
 
       <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-700/10 border border-yellow-500/20 rounded-3xl p-6 mb-6">

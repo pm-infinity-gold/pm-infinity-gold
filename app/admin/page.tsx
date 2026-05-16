@@ -17,6 +17,10 @@ import {
   logoutAdmin,
 } from "@/services/adminAuthService";
 
+import {
+  saveAnnouncement,
+} from "@/services/announcementService";
+
 interface RedemptionRequest {
 
   id: string;
@@ -47,6 +51,10 @@ export default function AdminPage() {
   const [authorized,
     setAuthorized] =
     useState(false);
+
+  const [announcement,
+    setAnnouncement] =
+    useState("");
 
   const analytics =
     getAdminAnalytics();
@@ -153,6 +161,27 @@ export default function AdminPage() {
         "/admin-login";
     };
 
+  const handleAnnouncement =
+    () => {
+
+      if (
+        !announcement.trim()
+      ) {
+
+        return;
+      }
+
+      saveAnnouncement(
+        announcement
+      );
+
+      setAnnouncement("");
+
+      alert(
+        "Announcement published successfully."
+      );
+    };
+
   if (!authorized) {
 
     return null;
@@ -205,6 +234,40 @@ export default function AdminPage() {
           </button>
 
         </div>
+
+      </div>
+
+      {/* ANNOUNCEMENTS */}
+
+      <div className="bg-gray-900 p-6 rounded-3xl border border-yellow-500/10 mb-8">
+
+        <p className="text-yellow-500 font-semibold mb-4">
+
+          Platform Announcement
+
+        </p>
+
+        <textarea
+          value={announcement}
+          onChange={(e) =>
+            setAnnouncement(
+              e.target.value
+            )
+          }
+          placeholder="Publish operational announcement..."
+          className="w-full p-4 rounded-2xl bg-black border border-gray-700 text-white min-h-[120px] mb-4"
+        />
+
+        <button
+          onClick={
+            handleAnnouncement
+          }
+          className="bg-yellow-500 text-black px-5 py-3 rounded-2xl font-semibold"
+        >
+
+          Publish Announcement
+
+        </button>
 
       </div>
 
@@ -278,7 +341,7 @@ export default function AdminPage() {
 
       </div>
 
-      {/* APP CONTROL */}
+      {/* PLATFORM CONTROL */}
 
       <div className="bg-gray-900 p-6 rounded-3xl border border-yellow-500/10 mb-8">
 
