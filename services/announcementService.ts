@@ -1,4 +1,4 @@
-export interface Announcement {
+ export interface Announcement {
 
   message: string;
 
@@ -8,6 +8,14 @@ export interface Announcement {
 export function saveAnnouncement(
   message: string
 ) {
+
+  if (
+    typeof window ===
+    "undefined"
+  ) {
+
+    return;
+  }
 
   const existing =
     JSON.parse(
@@ -35,6 +43,14 @@ export function saveAnnouncement(
 }
 
 export function getAnnouncements() {
+
+  if (
+    typeof window ===
+    "undefined"
+  ) {
+
+    return [];
+  }
 
   return JSON.parse(
     localStorage.getItem(
