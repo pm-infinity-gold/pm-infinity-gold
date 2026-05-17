@@ -280,6 +280,15 @@ const wealthStatus =
     walletBalance,
     streak
   );
+  const totalSavings =
+  Number(
+    localStorage.getItem(
+      `${user}_total`
+    ) || 0
+  );
+  
+  
+  
   const achievements =
   getAchievements(
     portfolio.goldOwned,
@@ -298,8 +307,6 @@ const wealthStatus =
     totalSavings,
     portfolio.goldOwned
   );
- 
- 
  
  
   const trustStatus =
@@ -472,6 +479,16 @@ const userLevel =
             `${currentUser}_history`
           ) || "[]"
         );
+
+const totalSavings =
+  typeof window !==
+    "undefined"
+    ? Number(
+        localStorage.getItem(
+          `${user}_total`
+        ) || 0
+      )
+    : 0;
 
       const storedRedemptions =
         JSON.parse(
