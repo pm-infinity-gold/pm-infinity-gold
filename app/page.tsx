@@ -87,6 +87,40 @@ import {
 } from "@/services/portfolioService";
 
 import {
+  getPortfolioHealth,
+} from "@/services/portfolioHealthService";
+
+
+import {
+  getTransactionAnalytics,
+} from "@/services/transactionAnalyticsService";
+import {
+  getWealthStatus,
+} from "@/services/wealthStatusService";
+
+import {
+  getAchievements,
+} from "@/services/achievementService";
+
+import {
+  getDisciplineScore,
+} from "@/services/disciplineScoreService";
+
+
+
+import {
+  getRewardStatus,
+} from "@/services/rewardEngineService";
+
+
+import {
+  getHoldingsBreakdown,
+} from "@/services/holdingsService";
+import {
+  getNextGoal,
+} from "@/services/goalEngineService";
+
+import {
   getUserLevel,
 } from "@/services/userLevelService";
 import BottomNav from "@/components/BottomNav";
@@ -208,7 +242,7 @@ const motivation =
         user
       )
     : 0;
-const portfolio =
+ const portfolio =
   user
     ? getPortfolioData(
         user
@@ -220,6 +254,54 @@ const portfolio =
         growth: 0,
       };
 
+const analyticsData =
+  getTransactionAnalytics(
+    history
+  );
+
+const wealthStatus =
+  getWealthStatus(
+    portfolio.goldOwned
+  );
+
+  const holdings =
+  getHoldingsBreakdown(
+    portfolio.estimatedValue,
+    walletBalance
+  );
+  
+  const nextGoal =
+  getNextGoal(
+    portfolio.goldOwned
+  );
+  const portfolioHealth =
+  getPortfolioHealth(
+    portfolio.goldOwned,
+    walletBalance,
+    streak
+  );
+  const achievements =
+  getAchievements(
+    portfolio.goldOwned,
+    streak,
+    totalSavings
+  );
+  
+  const rewardStatus =
+  getRewardStatus(
+    portfolio.goldOwned,
+    streak
+  );
+ const disciplineScore =
+  getDisciplineScore(
+    streak,
+    totalSavings,
+    portfolio.goldOwned
+  );
+ 
+ 
+ 
+ 
   const trustStatus =
     getAccountTrustStatus({
       total,
@@ -756,6 +838,425 @@ const userLevel =
   </div>
 
 </div>   
+{/* TRANSACTION ANALYTICS */}
+
+<div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-cyan-500/10">
+
+  <div className="flex justify-between items-center mb-5">
+
+    <p className="text-cyan-400 font-semibold">
+
+      Transaction Intelligence
+
+    </p>
+
+    <span className="text-2xl">
+
+      📈
+
+    </span>
+
+  </div>
+
+  <div className="grid grid-cols-3 gap-3">
+
+    <div className="bg-black border border-cyan-500/10 rounded-2xl p-4">
+
+      <p className="text-xs text-gray-500 mb-2">
+
+        Total Buys
+
+      </p>
+
+      <p className="text-cyan-400 font-semibold text-sm">
+
+        ₹ {analyticsData.totalBuys.toFixed(2)}
+
+      </p>
+
+    </div>
+
+    <div className="bg-black border border-red-500/10 rounded-2xl p-4">
+
+      <p className="text-xs text-gray-500 mb-2">
+
+        Total Sells
+
+      </p>
+
+      <p className="text-red-400 font-semibold text-sm">
+
+        ₹ {analyticsData.totalSells.toFixed(2)}
+
+      </p>
+
+    </div>
+
+    <div className="bg-black border border-green-500/10 rounded-2xl p-4">
+
+      <p className="text-xs text-gray-500 mb-2">
+
+        Net Investment
+
+      </p>
+
+      <p className="text-green-400 font-semibold text-sm">
+
+        ₹ {analyticsData.netInvestment.toFixed(2)}
+
+      </p>
+
+    </div>
+
+  </div>
+
+</div>    
+    
+ {/* WEALTH STATUS */}
+
+<div className="bg-gradient-to-r from-purple-500/10 to-black border border-purple-500/10 p-5 rounded-2xl mb-6">
+
+  <div className="flex justify-between items-center">
+
+    <div>
+
+      <p className="text-purple-400 font-semibold mb-2">
+
+        Wealth Status
+
+      </p>
+
+      <h2 className={`${wealthStatus.color} text-2xl font-bold`}>
+
+        {wealthStatus.title}
+
+      </h2>
+
+    </div>
+
+    <div className="text-4xl">
+
+      👑
+
+    </div>
+
+  </div>
+
+</div>   
+ {/* HOLDINGS BREAKDOWN */}
+
+<div className="bg-gray-900 p-5 rounded-2xl mb-6 border border-cyan-500/10">
+
+  <div className="flex justify-between items-center mb-5">
+
+    <p className="text-cyan-400 font-semibold">
+
+      Holdings Breakdown
+
+    </p>
+
+    <span className="text-2xl">
+
+      📊
+
+    </span>
+
+  </div>
+
+  <div className="grid grid-cols-2 gap-4 mb-4">
+
+    <div className="bg-black border border-yellow-500/10 rounded-2xl p-4">
+
+      <p className="text-xs text-gray-500 mb-2">
+
+        Gold Holdings
+
+      </p>
+
+      <p className="text-yellow-500 font-semibold">
+
+        {holdings.goldPercentage}%
+
+      </p>
+
+    </div>
+
+    <div className="bg-black border border-cyan-500/10 rounded-2xl p-4">
+
+      <p className="text-xs text-gray-500 mb-2">
+
+        Wallet Liquidity
+
+      </p>
+
+      <p className="text-cyan-400 font-semibold">
+
+        {holdings.walletPercentage}%
+
+      </p>
+
+    </div>
+
+  </div>
+
+  <div className="bg-black border border-green-500/10 rounded-2xl p-4">
+
+    <p className="text-xs text-gray-500 mb-2">
+
+      Total Assets
+
+    </p>
+
+    <p className="text-green-400 text-xl font-bold">
+
+      ₹ {holdings.totalAssets.toFixed(2)}
+
+    </p>
+
+  </div>
+
+</div>     
+      
+ {/* NEXT GOLD GOAL */}
+
+<div className="bg-gradient-to-r from-green-500/10 to-black border border-green-500/10 p-5 rounded-2xl mb-6">
+
+  <div className="flex justify-between items-start mb-5">
+
+    <div>
+
+      <p className="text-green-400 font-semibold mb-2">
+
+        Next Gold Goal
+
+      </p>
+
+      <h2 className="text-3xl font-bold text-white">
+
+        {nextGoal.nextGoal} g
+
+      </h2>
+
+    </div>
+
+    <div className="text-4xl">
+
+      🎯
+
+    </div>
+
+  </div>
+
+  <div className="mb-4">
+
+    <div className="w-full bg-black rounded-full h-3 overflow-hidden">
+
+      <div
+        className="bg-green-400 h-3 rounded-full"
+        style={{
+          width:
+            `${Math.min(
+              Number(
+                nextGoal.progress
+              ),
+              100
+            )}%`,
+        }}
+      />
+
+    </div>
+
+  </div>
+
+  <div className="grid grid-cols-2 gap-4">
+
+    <div className="bg-black border border-green-500/10 rounded-2xl p-4">
+
+      <p className="text-xs text-gray-500 mb-2">
+
+        Progress
+
+      </p>
+
+      <p className="text-green-400 font-semibold">
+
+        {nextGoal.progress}%
+
+      </p>
+
+    </div>
+
+    <div className="bg-black border border-green-500/10 rounded-2xl p-4">
+
+      <p className="text-xs text-gray-500 mb-2">
+
+        Remaining
+
+      </p>
+
+      <p className="text-white font-semibold">
+
+        {nextGoal.remaining.toFixed(3)} g
+
+      </p>
+
+    </div>
+
+  </div>
+
+</div>     
+ {/* ACHIEVEMENTS */}
+
+<div className="bg-gradient-to-r from-yellow-500/10 to-black border border-yellow-500/10 p-5 rounded-2xl mb-6">
+
+  <div className="flex justify-between items-center mb-5">
+
+    <p className="text-yellow-500 font-semibold">
+
+      Investor Achievements
+
+    </p>
+
+    <span className="text-3xl">
+
+      🏆
+
+    </span>
+
+  </div>
+
+  {achievements.length === 0 ? (
+
+    <p className="text-gray-400 text-sm">
+
+      Start building your gold ownership journey.
+
+    </p>
+
+  ) : (
+
+    <div className="flex flex-wrap gap-3">
+
+      {achievements.map(
+        (
+          item,
+          index
+        ) => (
+
+          <div
+            key={index}
+            className="bg-black border border-yellow-500/10 px-4 py-3 rounded-2xl text-sm text-yellow-400"
+          >
+
+            {item}
+
+          </div>
+
+        )
+      )}
+
+    </div>
+
+  )}
+
+</div>     
+ 
+ {/* REWARD STATUS */}
+
+<div className="bg-gradient-to-r from-yellow-500/10 to-black border border-yellow-500/10 p-5 rounded-2xl mb-6">
+
+  <div className="flex justify-between items-start mb-5">
+
+    <div>
+
+      <p className="text-yellow-500 font-semibold mb-2">
+
+        Reward Status
+
+      </p>
+
+      <h2 className="text-2xl font-bold text-white">
+
+        {rewardStatus.reward}
+
+      </h2>
+
+    </div>
+
+    <div className="text-4xl">
+
+      🎁
+
+    </div>
+
+  </div>
+
+  <div className="bg-black border border-yellow-500/10 rounded-2xl p-4">
+
+    <p className="text-xs text-gray-500 mb-2">
+
+      Membership Benefits
+
+    </p>
+
+    <p className="text-yellow-400 leading-7 text-sm">
+
+      {rewardStatus.benefit}
+
+    </p>
+
+  </div>
+
+</div>
+  {/* DISCIPLINE SCORE */}
+
+<div className="bg-gradient-to-r from-green-500/10 to-black border border-green-500/10 p-5 rounded-2xl mb-6">
+
+  <div className="flex justify-between items-start mb-5">
+
+    <div>
+
+      <p className="text-green-400 font-semibold mb-2">
+
+        Discipline Score
+
+      </p>
+
+      <h2 className={`${disciplineScore.color} text-3xl font-bold`}>
+
+        {disciplineScore.score}/100
+
+      </h2>
+
+    </div>
+
+    <div className="text-4xl">
+
+      📈
+
+    </div>
+
+  </div>
+
+  <div className="bg-black border border-green-500/10 rounded-2xl p-4">
+
+    <p className="text-xs text-gray-500 mb-2">
+
+      Financial Discipline Level
+
+    </p>
+
+    <p className={`${disciplineScore.color} text-lg font-semibold`}>
+
+      {disciplineScore.level}
+
+    </p>
+
+  </div>
+
+</div>    
+      
+      
       {/* HERO */}
 
       <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-700/10 border border-yellow-500/20 rounded-3xl p-6 mb-6">
